@@ -6,6 +6,7 @@
 <title>BUFF | Derin Analiz</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
@@ -438,6 +439,12 @@
 </div>
 
 <script>
+// ─── Backend API Adresi ───────────────────────────────────────────────────────
+const BUFF_API_BASE = 'http://localhost:3001/api';
+
+// JWT token yardımcıları
+function getToken() { return sessionStorage.getItem('buff_token') || localStorage.getItem('buff_token'); }
+
 const allCoins = [
     { sym:'BTC',  name:'Bitcoin',     price:'$64,281.00', chg:'+2.45%' },
     { sym:'ETH',  name:'Ethereum',    price:'$3,452.88',  chg:'-1.12%' },
@@ -492,24 +499,33 @@ function renderCoins(list) {
         el.innerHTML = '<div class="px-5 py-8 text-center text-on-surface-variant text-sm">Sonuç bulunamadı</div>';
         return;
     }
-    el.innerHTML = list.map(c => `
-        <div onclick="selectCoin('${c.sym}','${c.name}','${c.price}','${c.chg}')"
-             class="flex items-center justify-between px-5 py-3.5 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-0 coin-row" data-sym="${c.sym}">
+    // XSS: innerHTML'e yazmadan önce DOMPurify ile sanitize ediyoruz
+    const rawHtml = list.map(c => {
+        // coin verisi statik/iç kaynak, ama yine de encode ediyoruz
+        const sym  = DOMPurify.sanitize(c.sym);
+        const name = DOMPurify.sanitize(c.name);
+        const price = DOMPurify.sanitize(c.price);
+        const chg  = DOMPurify.sanitize(c.chg);
+        return `
+        <div onclick="selectCoin('${sym}','${name}','${price}','${chg}')"
+             class="flex items-center justify-between px-5 py-3.5 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-0 coin-row" data-sym="${sym}">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-surface-container rounded-lg flex items-center justify-center">
-                    <span class="text-[10px] font-bold text-tertiary">${c.sym.slice(0,3)}</span>
+                    <span class="text-[10px] font-bold text-tertiary">${sym.slice(0,3)}</span>
                 </div>
                 <div>
-                    <p class="text-sm font-semibold text-on-surface">${c.sym}</p>
-                    <p class="text-[10px] text-on-surface-variant">${c.name}</p>
+                    <p class="text-sm font-semibold text-on-surface">${sym}</p>
+                    <p class="text-[10px] text-on-surface-variant">${name}</p>
                 </div>
             </div>
             <div class="text-right">
-                <p class="text-sm font-headline font-medium text-on-surface">${c.price}</p>
-                <p class="text-[10px] font-bold ${c.chg.startsWith('-') ? 'text-error' : 'text-primary-dim'}">${c.chg}</p>
+                <p class="text-sm font-headline font-medium text-on-surface">${price}</p>
+                <p class="text-[10px] font-bold ${chg.startsWith('-') ? 'text-error' : 'text-primary-dim'}">${chg}</p>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
+    el.innerHTML = DOMPurify.sanitize(rawHtml);
 }
 
 function selectCoin(sym, name, price, chg) {
@@ -525,34 +541,33 @@ function selectCoin(sym, name, price, chg) {
     document.getElementById('cs-footer').classList.remove('hidden');
 }
 
-async function fetchGroqAnalysis(promptText, apiKey) {
+// ─── Backend Proxy üzerinden Groq analizi (API key frontend'de YOK) ──────────
+async function fetchGroqAnalysis(promptText) {
+    const token = getToken();
     try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const response = await fetch(`${BUFF_API_BASE}/analyze`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                // JWT token varsa gönder, yoksa sunucu 401 döner
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({
-                messages: [{
-                    role: "user",
-                    content: promptText
-                }],
-                model: "llama-3.3-70b-versatile",
-                temperature: 0.7,
-                max_tokens: 1024
-            })
+            body: JSON.stringify({ prompt: promptText })
         });
-        
-        if (!response.ok) {
-            throw new Error(`API Hatası: ${response.status}`);
+
+        if (response.status === 401) {
+            return '**Hata:** Analiz için giriş yapmanız gerekmektedir. Lütfen [Giriş Yap](index.html) sayfasına gidin.';
         }
-        
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `Sunucu hatası: ${response.status}`);
+        }
+
         const data = await response.json();
-        return data.choices[0].message.content;
+        return data.result;
     } catch (error) {
-        console.error(error);
-        return `**Hata:** Analiz oluşturulurken bir sorun oluştu. Lütfen API anahtarınızı kontrol edin veya internet bağlantınızdan emin olun.\n\nDetay: \`${error.message}\``;
+        console.error('[Analyze Error]', error.message);
+        return `**Hata:** Analiz servisi şu anda kullanılamıyor.\n\nDetay: \`${error.message}\`\n\n> Sunucunun çalıştığından emin olun: \`cd server && npm start\``;
     }
 }
 
@@ -560,8 +575,8 @@ async function addCoin() {
     if (!selectedCoin) return;
     closeCoinSearch();
 
-    // API Key - loaded from localStorage for security, defaults to empty to trigger mock fallback
-    let apiKey = localStorage.getItem('groq_api_key') || '';
+    // API anahtarı artık frontend'de tutulmuyor – backend proxy kullanılıyor
+    const hasBackend = true; // Backend çalışıyorsa true
 
     // Analiz tipine göre AI mesajı
     const msgs = {
@@ -612,7 +627,7 @@ async function addCoin() {
     document.querySelector('main').style.display = 'none';
     document.getElementById('chat-continuation').style.display = 'flex';
 
-    if (apiKey) {
+    if (hasBackend) {
         // Gerçek yapay zeka çağrısı
         let specificInstructions = "";
         
@@ -685,10 +700,11 @@ ${specificInstructions}
 
 Lütfen raporunu sadece bu kurallara bağlı kalarak oluştur.`;
 
-        const responseText = await fetchGroqAnalysis(promptText, apiKey);
-        
+        const responseText = await fetchGroqAnalysis(promptText);
+
         document.getElementById('ai-loading').style.display = 'none';
-        document.getElementById('ai-response-text').innerHTML = marked.parse(responseText);
+        // XSS: marked.parse çıktısını DOMPurify ile temizledikten sonra DOM'a yazıyoruz
+        document.getElementById('ai-response-text').innerHTML = DOMPurify.sanitize(marked.parse(responseText));
         
     } else {
         // Mock veri (Eğer API key girilmezse)
@@ -701,7 +717,8 @@ Lütfen raporunu sadece bu kurallara bağlı kalarak oluştur.`;
             };
             
             document.getElementById('ai-loading').style.display = 'none';
-            document.getElementById('ai-response-text').innerHTML = marked.parse(detailedMsgs[currentAnalysisType] || aiText);
+            // XSS: Mock veri de sanitize ediliyor
+            document.getElementById('ai-response-text').innerHTML = DOMPurify.sanitize(marked.parse(detailedMsgs[currentAnalysisType] || aiText));
         }, 1800);
     }
 }

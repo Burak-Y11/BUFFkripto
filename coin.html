@@ -196,7 +196,6 @@
         <!-- TradingView Chart Container Wrapper -->
         <div class="absolute inset-0 z-0 pt-40 px-4 pb-20 pointer-events-auto">
             <div id="tv-chart" class="w-full h-full" style="min-height: 400px;"></div>
-            <div id="debug-log" class="absolute top-32 right-4 text-error text-xs font-mono z-50"></div>
         </div>
 
         <!-- Floating Hero Title - coin bilgileri URL'den okunur -->
@@ -313,12 +312,9 @@
 </nav>
 
 <script>
-    // Global hata yakalayıcı
+    // Production: Hatalar kullanıcıya gösterilmez, sadece konsolda tutulur
     window.addEventListener('error', function(e) {
-        const debugLog = document.getElementById('debug-log');
-        if(debugLog) {
-            debugLog.textContent += " HATA: " + e.message;
-        }
+        console.error('[BUFF Error]', e.message, e.lineno);
     });
 
     // --- Akıllı Geri Dönüş Sistemi ---
@@ -415,11 +411,8 @@
             
             candleSeries.setData(cdata);
             chart.timeScale().fitContent();
-            
-            document.getElementById('debug-log').textContent = ""; // Hata yoksa temizle
         } catch (err) {
             console.error("Binance grafik verisi çekilemedi:", err);
-            document.getElementById('debug-log').textContent = "Hata: " + err.message;
         }
     }
     

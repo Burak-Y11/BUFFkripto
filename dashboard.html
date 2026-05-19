@@ -518,27 +518,13 @@
 </div>
 
 <script>
-    // Global hata yakalayıcı
+    // Production: Hatalar kullanıcıya gösterilmez, sadece konsolda tutulur
     window.addEventListener('error', function(e) {
-        let debugLog = document.getElementById('debug-log');
-        if(!debugLog) {
-            debugLog = document.createElement('div');
-            debugLog.id = 'debug-log';
-            debugLog.className = 'fixed top-4 right-4 bg-error text-white p-2 rounded z-[9999] text-xs font-mono';
-            document.body.appendChild(debugLog);
-        }
-        debugLog.textContent += " HATA: " + e.message;
+        console.error('[BUFF Error]', e.message, e.filename, e.lineno);
     });
 
     window.addEventListener('unhandledrejection', function(e) {
-        let debugLog = document.getElementById('debug-log');
-        if(!debugLog) {
-            debugLog = document.createElement('div');
-            debugLog.id = 'debug-log';
-            debugLog.className = 'fixed top-12 right-4 bg-error text-white p-2 rounded z-[9999] text-xs font-mono';
-            document.body.appendChild(debugLog);
-        }
-        debugLog.textContent += " ASYNC HATA: " + e.reason;
+        console.error('[BUFF Async Error]', e.reason);
     });
 // ---- Data ----
 // ---- Canlı Veri Motoru (Binance Polling) ----
