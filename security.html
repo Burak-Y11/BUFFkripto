@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BUFF | Güvenlik Ayarları</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#93c5fd", "primary-dim": "#60a5fa",
+                    "on-primary": "#00654b", "tertiary": "#00d5fe", "error": "#ff716c", "error-dim": "#d7383b",
+                    "background": "#0e0e0e", "surface": "#0e0e0e", "surface-dim": "#0e0e0e",
+                    "surface-container-lowest": "#000000", "surface-container-low": "#131313",
+                    "surface-container": "#1a1a1a", "surface-container-high": "#20201f",
+                    "surface-container-highest": "#262626", "surface-variant": "#262626",
+                    "on-surface": "#ffffff", "on-surface-variant": "#adaaaa",
+                    "on-background": "#ffffff", "outline": "#767575", "outline-variant": "#484847",
+                },
+                fontFamily: { "headline": ["Space Grotesk"], "body": ["Inter"], "label": ["Inter"] }
+            }
+        }
+    }
+</script>
+<style>
+    body {
+        background-color: #0e0e0e;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+    }
+    .tech-grid {
+        background-image: linear-gradient(rgba(0, 253, 193, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 253, 193, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block;
+        vertical-align: middle;
+    }
+</style>
+</head>
+<body class="bg-background min-h-screen">
+
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e0e]/40 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] h-16 px-8 flex justify-between items-center max-w-full">
+    <div class="flex items-center gap-8">
+        <a href="dashboard.html" class="text-2xl font-bold tracking-tighter text-tertiary drop-shadow-[0_0_8px_rgba(0,213,254,0.6)] font-headline">BUFF</a>
+        <div class="hidden md:flex gap-6 font-headline tracking-tight text-sm">
+            <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="dashboard.html">Piyasalar</a>
+            <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="analysis.html">Derin Analiz</a>
+            <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="portfolio.html">Portföy</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="hidden lg:flex items-center bg-surface-container-lowest border-l-2 border-tertiary px-3 py-1.5 rounded-lg">
+            <span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+            <input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-on-surface placeholder:text-on-surface-variant" placeholder="Sembol ara..." type="text"/>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="relative inline-block text-left" id="notification-dropdown-container">
+                <span onclick="toggleNotifications()" class="material-symbols-outlined text-on-surface-variant hover:text-tertiary cursor-pointer transition-colors relative">
+                    notifications
+                    <span id="notification-badge" class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+                </span>
+                
+                <div id="notification-menu" class="absolute right-0 mt-4 w-80 bg-[#131313] border border-outline-variant/30 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[999] flex-col hidden" style="border-radius: 12px;">
+                    <div class="px-4 py-3 border-b border-outline-variant/20 flex justify-between items-center bg-[#1a1a1a] rounded-t-xl">
+                        <span class="font-headline font-semibold text-sm text-white">Bildirimler</span>
+                        <span onclick="markAllAsRead()" class="text-[10px] text-tertiary cursor-pointer hover:underline">Tümünü Okundu İşaretle</span>
+                    </div>
+                    <div class="max-h-80 overflow-y-auto scroll-hide">
+                        <div class="px-4 py-3 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold text-[#00FFC2] uppercase tracking-widest">Yükseliş Alert</span>
+                                <span class="text-[9px] text-on-surface-variant">2dk önce</span>
+                            </div>
+                            <p class="text-xs text-white leading-relaxed"><span class="font-bold">Bitcoin (BTC)</span> %5'ten fazla büyüme gösterdi ve 78,000 dolar direncini aştı.</p>
+                        </div>
+                        <div class="px-4 py-3 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold text-error uppercase tracking-widest">Düşüş Alert</span>
+                                <span class="text-[9px] text-on-surface-variant">15dk önce</span>
+                            </div>
+                            <p class="text-xs text-white leading-relaxed"><span class="font-bold">Ethereum (ETH)</span> %5'ten fazla değer kaybetti ve 3,000 doların altına geriledi.</p>
+                        </div>
+                        <div class="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors rounded-b-xl">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold text-tertiary uppercase tracking-widest">Sistem</span>
+                                <span class="text-[9px] text-on-surface-variant">1sa önce</span>
+                            </div>
+                            <p class="text-xs text-white leading-relaxed">Takip listenizdeki <span class="font-bold">Solana (SOL)</span> için yeni yapay zeka analiz raporu hazırlandı.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            function markAllAsRead() {
+                const badge = document.getElementById('notification-badge');
+                if (badge) badge.style.display = 'none';
+            }
+            function toggleNotifications() {
+                const menu = document.getElementById('notification-menu');
+                if (menu.classList.contains('hidden')) {
+                    menu.classList.remove('hidden');
+                    menu.classList.add('flex');
+                } else {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                }
+            }
+            document.addEventListener('click', function(e) {
+                const container = document.getElementById('notification-dropdown-container');
+                if (container && !container.contains(e.target)) {
+                    const menu = document.getElementById('notification-menu');
+                    if (menu && !menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                        menu.classList.remove('flex');
+                    }
+                }
+            });
+            </script>
+            <span onclick="window.location.href='settings.html'" class="material-symbols-outlined text-tertiary cursor-pointer transition-colors">settings</span>
+        </div>
+    </div>
+</nav>
+
+<div class="flex min-h-screen pt-16">
+    <!-- SideNavBar -->
+    <aside class="hidden md:flex h-[calc(100vh-4rem)] w-64 fixed left-0 top-16 bg-surface-container-low flex-col pt-8 border-r border-white/5 z-40">
+        <div class="px-8 mb-8">
+            <h2 class="font-headline text-xl font-bold text-tertiary">Ayarlar</h2>
+            <p class="text-on-surface-variant text-xs uppercase tracking-widest mt-1">Hesap Tercihleri</p>
+        </div>
+        <nav class="flex flex-col gap-1">
+            <a class="text-on-surface-variant py-4 px-6 flex items-center gap-4 hover:bg-surface-container hover:text-white transition-all duration-150" href="settings.html">
+                <span class="material-symbols-outlined">person</span>
+                <span class="font-label text-sm font-medium uppercase tracking-wider">Profil</span>
+            </a>
+            <a class="bg-surface-container border-l-2 py-4 px-6 flex items-center gap-4 transition-all duration-150 text-tertiary border-tertiary shadow-[inset_10px_0_10px_-10px_rgba(0,213,254,0.15)]" href="security.html">
+                <span class="material-symbols-outlined">shield</span>
+                <span class="font-label text-sm font-medium uppercase tracking-wider">Güvenlik</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="w-full md:ml-64 tech-grid relative overflow-hidden flex-grow pb-24 md:pb-0">
+        <div class="max-w-3xl mx-auto px-6 md:px-12 py-12 relative z-10 min-h-[80vh] flex flex-col justify-center">
+            
+            <!-- Header Section -->
+            <div class="mb-10 text-center md:text-left">
+                <h1 class="text-3xl md:text-4xl font-headline font-bold text-white tracking-tight mb-2">Güvenlik Ayarları</h1>
+                <p class="text-on-surface-variant font-body text-sm md:text-base">Hesabınızın güvenliğini ve erişim yetkilerini kontrol edin.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-8 w-full">
+                <!-- Password Change Section -->
+                <div class="bg-surface-container-low border border-white/5 rounded-2xl p-6 md:p-8 shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative z-20 backdrop-blur-sm">
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
+                        <span class="material-symbols-outlined text-tertiary">lock_reset</span>
+                        <h2 class="text-lg font-headline font-semibold text-white">Şifre Değiştirme</h2>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase tracking-widest text-on-surface-variant font-medium ml-1">Mevcut Şifre</label>
+                            <div class="relative border-l-2 border-surface-variant focus-within:border-primary transition-all rounded-r-lg bg-surface-container overflow-hidden">
+                                <input class="w-full bg-transparent border-none px-4 py-3 text-white focus:ring-0 outline-none text-sm" placeholder="••••••••" type="password"/>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] uppercase tracking-widest text-on-surface-variant font-medium ml-1">Yeni Şifre</label>
+                                <div class="relative border-l-2 border-surface-variant focus-within:border-primary transition-all rounded-r-lg bg-surface-container overflow-hidden">
+                                    <input class="w-full bg-transparent border-none px-4 py-3 text-white focus:ring-0 outline-none text-sm" placeholder="••••••••" type="password"/>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] uppercase tracking-widest text-on-surface-variant font-medium ml-1">Yeni Şifre Tekrar</label>
+                                <div class="relative border-l-2 border-surface-variant focus-within:border-primary transition-all rounded-r-lg bg-surface-container overflow-hidden">
+                                    <input class="w-full bg-transparent border-none px-4 py-3 text-white focus:ring-0 outline-none text-sm" placeholder="••••••••" type="password"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pt-4 flex justify-end">
+                            <button class="w-full md:w-auto px-8 py-3.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-lg shadow-[0_0_20px_rgba(79,70,229,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-[11px] uppercase tracking-wider">
+                                Şifreyi Güncelle
+                                <span class="material-symbols-outlined text-base">key</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Activity Section -->
+                <div class="bg-surface-container-low border border-white/5 rounded-2xl p-6 md:p-8 shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative z-20 backdrop-blur-sm">
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
+                        <span class="material-symbols-outlined text-tertiary">history</span>
+                        <h2 class="text-lg font-headline font-semibold text-white">Hesap Hareketleri</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between py-3 border-b border-white/5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-surface-container border border-white/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-on-surface-variant">desktop_windows</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-white">İstanbul, TR - Chrome on Windows</p>
+                                    <p class="text-[10px] text-tertiary mt-0.5 font-medium">Şu an aktif</p>
+                                </div>
+                            </div>
+                            <span class="text-[9px] text-[#00FFC2] bg-[#00FFC2]/10 border border-[#00FFC2]/20 px-2 py-1 rounded font-bold uppercase tracking-widest">Mevcut Cihaz</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between py-3 border-b border-white/5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-surface-container border border-white/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-on-surface-variant">smartphone</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-white">Ankara, TR - iPhone 14 Pro</p>
+                                    <p class="text-[10px] text-on-surface-variant mt-0.5">3 saat önce</p>
+                                </div>
+                            </div>
+                            <button class="text-[10px] text-on-surface-variant hover:text-error uppercase font-bold tracking-widest transition-colors">Oturumu Kapat</button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between py-3">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-surface-container border border-white/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-on-surface-variant">laptop_mac</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-white">Londra, UK - Safari on MacOS</p>
+                                    <p class="text-[10px] text-on-surface-variant mt-0.5">2 gün önce</p>
+                                </div>
+                            </div>
+                            <button class="text-[10px] text-on-surface-variant hover:text-error uppercase font-bold tracking-widest transition-colors">Oturumu Kapat</button>
+                        </div>
+                    </div>
+                    <button class="w-full mt-6 py-3.5 border border-error/30 hover:bg-error/10 text-error text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all">
+                        Tüm Oturumları Kapat
+                    </button>
+                </div>
+            </div>
+
+            <!-- Background Decorative Glow -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-tertiary/5 rounded-full blur-[100px] pointer-events-none z-0"></div>
+        </div>
+    </main>
+</div>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-[#0e0e0e]/90 backdrop-blur-2xl border-t border-white/5 shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
+  <a href="dashboard.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+    <span class="material-symbols-outlined">monitoring</span>
+    <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Market</span>
+  </a>
+  <a href="analysis.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+    <span class="material-symbols-outlined">query_stats</span>
+    <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Analiz</span>
+  </a>
+  <a href="portfolio.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+    <span class="material-symbols-outlined">account_balance_wallet</span>
+    <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Takip</span>
+  </a>
+  <a href="settings.html" class="flex flex-col items-center justify-center bg-tertiary/10 text-tertiary rounded-xl px-5 py-2 shadow-[inset_0_0_10px_rgba(0,213,254,0.2)]">
+    <span class="material-symbols-outlined">settings</span>
+    <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Ayarlar</span>
+  </a>
+</nav>
+
+</body>
+</html>

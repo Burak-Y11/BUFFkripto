@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BUFF | Piyasalar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#2c2c2c",
+                        "surface-dim": "#0e0e0e",
+                        "on-tertiary-container": "#004553",
+                        "on-tertiary-fixed-variant": "#004e5f",
+                        "inverse-on-surface": "#565555",
+                        "tertiary-fixed": "#00d5fe",
+                        "tertiary": "#00d5fe",
+                        "on-secondary": "#525151",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#00d5fe",
+                        "surface-container-highest": "#262626",
+                        "secondary-fixed": "#e5e2e1",
+                        "background": "#0e0e0e",
+                        "on-tertiary-fixed": "#002f39",
+                        "secondary-container": "#474746",
+                        "primary-container": "#00fdc1",
+                        "outline": "#767575",
+                        "error-dim": "#d7383b",
+                        "surface-container-lowest": "#000000",
+                        "surface-container-high": "#20201f",
+                        "secondary-dim": "#d6d4d3",
+                        "primary-fixed-dim": "#00edb4",
+                        "on-secondary-container": "#d2d0cf",
+                        "tertiary-fixed-dim": "#00c7ec",
+                        "surface": "#0e0e0e",
+                        "on-background": "#ffffff",
+                        "on-primary-fixed-variant": "#00664c",
+                        "on-surface": "#ffffff",
+                        "on-tertiary": "#004e5f",
+                        "outline-variant": "#484847",
+                        "on-primary-container": "#005c44",
+                        "surface-tint": "#aaffdc",
+                        "primary": "#aaffdc",
+                        "inverse-surface": "#fcf9f8",
+                        "on-primary-fixed": "#004734",
+                        "error": "#ff716c",
+                        "error-container": "#9f0519",
+                        "surface-container": "#1a1a1a",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "primary-fixed": "#00fdc1",
+                        "surface-variant": "#262626",
+                        "primary-dim": "#00edb4",
+                        "on-surface-variant": "#adaaaa",
+                        "on-error": "#490006",
+                        "on-error-container": "#ffa8a3",
+                        "surface-container-low": "#131313",
+                        "inverse-primary": "#006c51",
+                        "secondary": "#e5e2e1",
+                        "tertiary-dim": "#00c7ec",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-secondary-fixed": "#403f3f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0e0e0e;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .kinetic-void-gradient {
+            background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+        }
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 255, 194, 0.15);
+        }
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        /* Market Filter Dropdown */
+        .market-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 320px;
+            height: 400px;
+            background: #131313;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,255,194,0.05);
+            animation: dropIn 0.18s ease;
+        }
+        .market-dropdown.open { display: flex; }
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .market-dropdown .dd-header {
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .market-dropdown .dd-body {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .market-dropdown .dd-body::-webkit-scrollbar { display: none; }
+        .dd-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .dd-row:hover { background: rgba(255,255,255,0.04); }
+        .dd-row .dd-rank {
+            font-size: 10px;
+            color: #636363;
+            width: 18px;
+            flex-shrink: 0;
+        }
+        .dd-row .dd-info { flex: 1; margin-left: 10px; }
+        .dd-row .dd-sym {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .dd-row .dd-name {
+            font-size: 10px;
+            color: #636363;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .dd-row .dd-price {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            text-align: right;
+        }
+        .dd-row .dd-change {
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: right;
+        }
+        .dd-change.up { color: #00FFC2; }
+        .dd-change.down { color: #ff716c; }
+        .filter-btn-active {
+            background: rgba(0,255,194,0.08) !important;
+            border-color: rgba(0,255,194,0.3) !important;
+            color: #00FFC2 !important;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar Shared Component -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e0e]/40 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] h-16 px-8 flex justify-between items-center max-w-full">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tighter text-tertiary drop-shadow-[0_0_8px_rgba(0,213,254,0.6)] font-headline">BUFF</span>
+<div class="hidden md:flex gap-6 font-headline tracking-tight text-sm">
+<a class="text-tertiary border-b-2 border-tertiary pb-1" href="dashboard.html">Piyasalar</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors" href="analysis.html">Derin Analiz</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors" href="portfolio.html">Portföy</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-surface-container-lowest border-l-2 px-3 py-1.5 rounded-lg border-tertiary">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-on-surface placeholder:text-on-surface-variant" placeholder="Sembol ara..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative inline-block text-left" id="notification-dropdown-container">
+            <span onclick="toggleNotifications()" class="material-symbols-outlined text-on-surface-variant hover:text-tertiary cursor-pointer transition-colors relative">
+                notifications
+                <span id="notification-badge" class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+            </span>
+            
+            <div id="notification-menu" class="absolute right-0 mt-4 w-80 bg-[#131313] border border-outline-variant/30 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[999] flex-col hidden" style="border-radius: 12px;">
+                <div class="px-4 py-3 border-b border-outline-variant/20 flex justify-between items-center bg-[#1a1a1a] rounded-t-xl">
+                    <span class="font-headline font-semibold text-sm text-white">Bildirimler</span>
+                    <span onclick="markAllAsRead()" class="text-[10px] text-tertiary cursor-pointer hover:underline">Tümünü Okundu İşaretle</span>
+                </div>
+                <div class="max-h-80 overflow-y-auto scroll-hide">
+                    <div class="px-4 py-3 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[10px] font-bold text-[#00FFC2] uppercase tracking-widest">Yükseliş Alert</span>
+                            <span class="text-[9px] text-on-surface-variant">2dk önce</span>
+                        </div>
+                        <p class="text-xs text-white leading-relaxed"><span class="font-bold">Bitcoin (BTC)</span> %5'ten fazla büyüme gösterdi ve 78,000 dolar direncini aştı.</p>
+                    </div>
+                    <div class="px-4 py-3 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[10px] font-bold text-error uppercase tracking-widest">Düşüş Alert</span>
+                            <span class="text-[9px] text-on-surface-variant">15dk önce</span>
+                        </div>
+                        <p class="text-xs text-white leading-relaxed"><span class="font-bold">Ethereum (ETH)</span> %5'ten fazla değer kaybetti ve 3,000 doların altına geriledi.</p>
+                    </div>
+                    <div class="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors rounded-b-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[10px] font-bold text-tertiary uppercase tracking-widest">Sistem</span>
+                            <span class="text-[9px] text-on-surface-variant">1sa önce</span>
+                        </div>
+                        <p class="text-xs text-white leading-relaxed">Takip listenizdeki <span class="font-bold">Solana (SOL)</span> için yeni yapay zeka analiz raporu hazırlandı.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function markAllAsRead() {
+            const badge = document.getElementById('notification-badge');
+            if (badge) badge.style.display = 'none';
+        }
+        function toggleNotifications() {
+            const menu = document.getElementById('notification-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+            } else {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+            }
+        }
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('notification-dropdown-container');
+            if (container && !container.contains(e.target)) {
+                const menu = document.getElementById('notification-menu');
+                if (menu && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                }
+            }
+        });
+        </script>
+<span onclick="window.location.href='settings.html'" class="material-symbols-outlined text-on-surface-variant hover:text-tertiary cursor-pointer transition-colors">settings</span>
+</div>
+</div>
+</nav>
+<div class="flex pt-16 h-screen">
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden max-w-[1600px] mx-auto w-full">
+<!-- 75% Main Column -->
+<div class="w-full lg:w-3/4 overflow-y-auto scroll-hide p-8 space-y-12">
+
+
+<!-- Row 1: En Popüler -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="text-3xl font-headline font-bold tracking-tight text-on-surface">En Popüler</h2>
+<p class="text-on-surface-variant text-sm mt-1">Piyasanın en çok işlem gören varlıkları.</p>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-[#00FFC2]">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-[#00FFC2]">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+<!-- Card 1 -->
+<div onclick="window.location.href='coin.html?coin=BTC&name=BITCOIN&price=64%2C281.00&change=%2B2.4%25'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-[#00FFC2]/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-[#00FFC2] transition-colors">BTC/BITCOIN</h3>
+<span class="w-fit text-[#00FFC2] text-[10px] font-bold bg-[#00FFC2]/10 px-1.5 py-0.5 rounded-full">+2.4%</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">$64,281.00</div>
+</div>
+<!-- Card 2 -->
+<div onclick="window.location.href='coin.html?coin=ETH&name=ETHEREUM&price=3%2C452.12&change=%2B1.8%25'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-[#00FFC2]/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-[#00FFC2] transition-colors">ETH/ETHEREUM</h3>
+<span class="w-fit text-[#00FFC2] text-[10px] font-bold bg-[#00FFC2]/10 px-1.5 py-0.5 rounded-full">+1.8%</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">$3,452.12</div>
+</div>
+<!-- Card 3 -->
+<div onclick="window.location.href='coin.html?coin=SOL&name=SOLANA&price=142.67&change=%2B5.1%25'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-[#00FFC2]/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-[#00FFC2] transition-colors">SOL/SOLANA</h3>
+<span class="w-fit text-[#00FFC2] text-[10px] font-bold bg-[#00FFC2]/10 px-1.5 py-0.5 rounded-full">+5.1%</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">$142.67</div>
+</div>
+<!-- Card 4: BNB -->
+<div onclick="window.location.href='coin.html?coin=BNB&name=BNB'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-[#00FFC2]/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-[#00FFC2] transition-colors">BNB/BNB</h3>
+<span class="w-fit text-on-surface-variant text-[10px] font-bold bg-white/5 px-1.5 py-0.5 rounded-full">Yükleniyor..</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">...</div>
+</div>
+</div>
+</section>
+<!-- Row 2: Altcoinler -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="text-3xl font-headline font-bold tracking-tight text-on-surface">Altcoinler</h2>
+<p class="text-on-surface-variant text-sm mt-1">Yükseliş potansiyeli yüksek alternatifler.</p>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-[#00FFC2]">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-[#00FFC2]">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+<!-- Card 4 -->
+<div onclick="window.location.href='coin.html?coin=DOT&name=POLKADOT&price=7.12&change=%2B0.8%25'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-[#00FFC2]/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-[#00FFC2] transition-colors">DOT/POLKADOT</h3>
+<span class="w-fit text-[#00FFC2] text-[10px] font-bold bg-[#00FFC2]/10 px-1.5 py-0.5 rounded-full">+0.8%</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">$7.12</div>
+</div>
+<!-- Card 5 -->
+<div onclick="window.location.href='coin.html?coin=LINK&name=CHAINLINK&price=18.44&change=%2B3.2%25'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-[#00FFC2]/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-[#00FFC2] transition-colors">LINK/CHAINLINK</h3>
+<span class="w-fit text-[#00FFC2] text-[10px] font-bold bg-[#00FFC2]/10 px-1.5 py-0.5 rounded-full">+3.2%</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">$18.44</div>
+</div>
+<!-- Card 6 -->
+<div onclick="window.location.href='coin.html?coin=ADA&name=CARDANO&price=0.48&change=%2B1.1%25'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-[#00FFC2]/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-[#00FFC2] transition-colors">ADA/CARDANO</h3>
+<span class="w-fit text-[#00FFC2] text-[10px] font-bold bg-[#00FFC2]/10 px-1.5 py-0.5 rounded-full">+1.1%</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">$0.48</div>
+</div>
+<!-- Card 4: PEPE -->
+<div onclick="window.location.href='coin.html?coin=PEPE&name=PEPE'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-[#00FFC2]/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-[#00FFC2] transition-colors">PEPE/PEPE</h3>
+<span class="w-fit text-on-surface-variant text-[10px] font-bold bg-white/5 px-1.5 py-0.5 rounded-full">Yükleniyor..</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">...</div>
+</div>
+</div>
+</section>
+<!-- Row 3: Düşüşte Olanlar -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="text-3xl font-headline font-bold tracking-tight text-on-surface">Düşüşte Olanlar</h2>
+<p class="text-on-surface-variant text-sm mt-1">Alım fırsatı yaratabilecek geri çekilmeler.</p>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-[#00FFC2]">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-[#00FFC2]">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+<!-- Card 7 -->
+<div onclick="window.location.href='coin.html?coin=XRP&name=RIPPLE&price=0.61&change=-3.4%25'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-error/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-error transition-colors">XRP/RIPPLE</h3>
+<span class="w-fit text-error text-[10px] font-bold bg-error/10 px-1.5 py-0.5 rounded-full">-3.4%</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">$0.61</div>
+</div>
+<!-- Card 8 -->
+<div onclick="window.location.href='coin.html?coin=AVAX&name=AVALANCHE&price=36.45&change=-1.2%25'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-error/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-error transition-colors">AVAX/AVALANCHE</h3>
+<span class="w-fit text-error text-[10px] font-bold bg-error/10 px-1.5 py-0.5 rounded-full">-1.2%</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">$36.45</div>
+</div>
+<!-- Card 3: SHIB -->
+<div onclick="window.location.href='coin.html?coin=SHIB&name=SHIBA+INU'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-error/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-error transition-colors">SHIB/SHIBA INU</h3>
+<span class="w-fit text-on-surface-variant text-[10px] font-bold bg-white/5 px-1.5 py-0.5 rounded-full">Yükleniyor..</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">...</div>
+</div>
+<!-- Card 4: DOGE -->
+<div onclick="window.location.href='coin.html?coin=DOGE&name=DOGECOIN'" class="kinetic-void-gradient px-5 py-8 rounded-xl border border-outline-variant/10 group hover:border-error/30 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline font-bold text-sm leading-tight text-on-surface-variant group-hover:text-error transition-colors">DOGE/DOGECOIN</h3>
+<span class="w-fit text-on-surface-variant text-[10px] font-bold bg-white/5 px-1.5 py-0.5 rounded-full">Yükleniyor..</span>
+</div>
+<div class="text-lg font-headline font-bold text-on-surface">...</div>
+</div>
+</div>
+</section>
+</div>
+<!-- 25% Right Sidebar -->
+<div class="hidden lg:block w-1/4 border-l border-outline-variant/10 p-6 space-y-8 bg-surface-container-low/30 overflow-hidden">
+<!-- Piyasa Özeti Widget -->
+<div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/10">
+<h3 class="text-sm font-label font-bold uppercase tracking-widest text-on-surface-variant mb-6 flex items-center">
+<span class="material-symbols-outlined text-sm mr-2 text-[#00FFC2]">analytics</span>
+                        Piyasa Özeti
+                    </h3>
+<div class="space-y-4">
+<div class="flex justify-between items-center group cursor-pointer hover:bg-surface-container rounded-lg px-2 py-1.5 -mx-2 transition-colors" onclick="window.location.href='coin.html?coin=PEPE&name=PEPE&price=0.00000812&change=%2B12%25'">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container rounded-lg flex items-center justify-center">
+<span class="text-[10px] font-bold text-[#00FFC2]">01</span>
+</div>
+<span class="text-sm font-medium text-on-surface group-hover:text-[#00FFC2] transition-colors">Trending</span>
+</div>
+<span class="text-xs text-[#00FFC2] font-bold">PEPE (+12%)</span>
+</div>
+<div class="flex justify-between items-center group cursor-pointer hover:bg-surface-container rounded-lg px-2 py-1.5 -mx-2 transition-colors" onclick="window.location.href='coin.html?coin=FET&name=FETCH.AI&price=2.41&change=%2B24%25'">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container rounded-lg flex items-center justify-center">
+<span class="text-[10px] font-bold text-tertiary">02</span>
+</div>
+<span class="text-sm font-medium text-on-surface group-hover:text-tertiary transition-colors">Top Gainer</span>
+</div>
+<span class="text-xs text-[#00FFC2] font-bold">FET (+24%)</span>
+</div>
+<div class="flex justify-between items-center group cursor-pointer hover:bg-surface-container rounded-lg px-2 py-1.5 -mx-2 transition-colors" onclick="window.location.href='coin.html?coin=USTC&name=TERRAUSD&price=0.023&change=-18%25'">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container rounded-lg flex items-center justify-center">
+<span class="text-[10px] font-bold text-error">03</span>
+</div>
+<span class="text-sm font-medium text-on-surface group-hover:text-error transition-colors">Top Loser</span>
+</div>
+<span class="text-xs text-error font-bold">USTC (-18%)</span>
+</div>
+</div>
+<!-- Tümünü Gör -->
+<a href="markets.html" class="block w-full py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] hover:text-[#00FFC2] transition-colors text-center">
+    Tümünü Gör
+</a>
+</div>
+<!-- Günlük Haberler Widget -->
+<div class="space-y-4">
+<h3 class="text-sm font-label font-bold uppercase tracking-widest text-on-surface-variant flex items-center px-2">
+<span class="material-symbols-outlined text-sm mr-2 text-[#00FFC2]">newspaper</span>
+                        Günlük Haberler
+                    </h3>
+<div class="space-y-4">
+<!-- News Item 1 -->
+<div class="p-4 rounded-xl hover:bg-surface-container transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/10">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-[9px] text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded font-bold uppercase">Dünya</span>
+<span class="text-[9px] text-on-surface-variant">4dk önce</span>
+</div>
+<h4 class="text-sm font-medium leading-relaxed group-hover:text-[#00FFC2] transition-colors">FED faiz kararı sonrası Bitcoin'de 65k direnci test ediliyor.</h4>
+</div>
+<!-- News Item 2 -->
+<div class="p-4 rounded-xl hover:bg-surface-container transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/10">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-[9px] text-[#00FFC2] bg-[#00FFC2]/10 px-1.5 py-0.5 rounded font-bold uppercase">Borsa</span>
+<span class="text-[9px] text-on-surface-variant">15dk önce</span>
+</div>
+<h4 class="text-sm font-medium leading-relaxed group-hover:text-[#00FFC2] transition-colors">BUFF Exchange, 5 yeni yapay zeka tokenini listelediğini duyurdu.</h4>
+</div>
+<!-- News Item 3 -->
+<div class="p-4 rounded-xl hover:bg-surface-container transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/10">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-[9px] text-secondary bg-secondary/10 px-1.5 py-0.5 rounded font-bold uppercase">Analiz</span>
+<span class="text-[9px] text-on-surface-variant">1sa önce</span>
+</div>
+<h4 class="text-sm font-medium leading-relaxed group-hover:text-[#00FFC2] transition-colors">Ethereum ETF başvuruları için son tarih yaklaşıyor: Beklentiler neler?</h4>
+</div>
+</div>
+<button class="w-full py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] hover:text-[#00FFC2] transition-colors">
+                        Tüm Haberleri Gör
+                    </button>
+</div>
+<!-- Promo Banner -->
+<div class="relative rounded-2xl overflow-hidden h-52 kinetic-void-gradient p-6 flex flex-col justify-end border border-outline-variant/10">
+<img alt="Abstract Crypto" class="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH6fcceH5U_LqdbcbSXYP-_KWj_n1pQ59j6Vjiwef-Pk6f-nkBEH1gG16nVsjFaA0TwL3hY-rDRMiRdlSX59U6oDlCcsDvAgZC5qEot04ioUht_fIE2oFv66d_e_AaYey_8BU2Xqv2gT9nOkZTHG0WjItVoD98E9l6g2ULl-JC3nfvqjKbC0o4eEIVEXNVilYYRS_X9bM6S9Z_DnMO8mFfsdlV4aKvTiKcIVrEd0f3ffzzVZyWTIq4jeyJ2o0MlNx01aE2AYcyLFk"/>
+<div class="relative z-10">
+<h4 class="font-headline font-bold text-xl mb-2 text-on-surface">BUFF VIP Terminal</h4>
+<p class="text-xs text-on-surface-variant mb-4">Gelişmiş AI sinyalleri ve kurumsal veri setlerine erişim sağlayın.</p>
+<button class="w-full py-2 bg-[#00FFC2] text-[#0e0e0e] font-bold text-xs rounded-lg hover:shadow-[0_0_15px_rgba(0,255,194,0.4)] transition-all">Şimdi Yükselt</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<script>
+    // Global hata yakalayıcı
+    window.addEventListener('error', function(e) {
+        let debugLog = document.getElementById('debug-log');
+        if(!debugLog) {
+            debugLog = document.createElement('div');
+            debugLog.id = 'debug-log';
+            debugLog.className = 'fixed top-4 right-4 bg-error text-white p-2 rounded z-[9999] text-xs font-mono';
+            document.body.appendChild(debugLog);
+        }
+        debugLog.textContent += " HATA: " + e.message;
+    });
+
+    window.addEventListener('unhandledrejection', function(e) {
+        let debugLog = document.getElementById('debug-log');
+        if(!debugLog) {
+            debugLog = document.createElement('div');
+            debugLog.id = 'debug-log';
+            debugLog.className = 'fixed top-12 right-4 bg-error text-white p-2 rounded z-[9999] text-xs font-mono';
+            document.body.appendChild(debugLog);
+        }
+        debugLog.textContent += " ASYNC HATA: " + e.reason;
+    });
+// ---- Data ----
+// ---- Canlı Veri Motoru (Binance Polling) ----
+function renderList(containerId, items, isGainer) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = items.map(d => `
+        <div class="dd-row" onclick="window.location.href='coin.html?coin=${d.sym}&name=${d.name}'">
+            <span class="dd-rank">${d.rank}</span>
+            <div class="dd-info">
+                <div class="dd-sym">${d.sym}</div>
+                <div class="dd-name">${d.name}</div>
+            </div>
+            <div style="text-align:right">
+                <div class="dd-price">${d.price}</div>
+                <div class="dd-change ${isGainer ? 'up' : 'down'}">${d.chg}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function updateMarketData() {
+    try {
+        const res = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+        if(!res.ok) throw new Error("API Limitine takıldı veya hata: " + res.status);
+        const allData = await res.json();
+        
+        const dataMap = {};
+        allData.forEach(d => { dataMap[d.symbol] = d; });
+        
+        // 1. Ekrandaki Kartları Dinamik Güncelle
+        const cards = document.querySelectorAll('.kinetic-void-gradient');
+        cards.forEach(card => {
+            const titleEl = card.querySelector('h3');
+            if(titleEl) {
+                const coin = titleEl.textContent.split('/')[0];
+                const symbol = coin + 'USDT';
+                const marketData = dataMap[symbol];
+                
+                if(marketData) {
+                    const currentPrice = parseFloat(marketData.lastPrice);
+                    const changePercent = parseFloat(marketData.priceChangePercent);
+                    
+                    const priceEl = card.querySelector('div.text-lg.font-headline');
+                    const changeEl = card.querySelector('span.w-fit');
+                    
+                    const formattedPrice = currentPrice < 1 ? currentPrice.toString() : currentPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    const formattedChange = changePercent > 0 ? '+' + changePercent.toFixed(2) + '%' : changePercent.toFixed(2) + '%';
+                    
+                    if(priceEl) priceEl.textContent = '$' + formattedPrice;
+                    if(changeEl) {
+                        changeEl.textContent = formattedChange;
+                        if(changePercent >= 0) {
+                            changeEl.className = 'w-fit text-[#00FFC2] text-[10px] font-bold bg-[#00FFC2]/10 px-1.5 py-0.5 rounded-full';
+                            card.classList.remove('hover:border-error/30');
+                            card.classList.add('hover:border-[#00FFC2]/30');
+                            titleEl.classList.remove('group-hover:text-error');
+                            titleEl.classList.add('group-hover:text-[#00FFC2]');
+                        } else {
+                            changeEl.className = 'w-fit text-error text-[10px] font-bold bg-error/10 px-1.5 py-0.5 rounded-full';
+                            card.classList.remove('hover:border-[#00FFC2]/30');
+                            card.classList.add('hover:border-error/30');
+                            titleEl.classList.remove('group-hover:text-[#00FFC2]');
+                            titleEl.classList.add('group-hover:text-error');
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 2. Gerçek Kazananlar ve Kaybedenleri Hesapla
+        // volume yerine quoteVolume (dolar hacmi) kullanıyoruz. 15 Milyon dolar hacimden büyükleri al.
+        const usdtPairs = allData.filter(d => d.symbol.endsWith('USDT') && parseFloat(d.quoteVolume) > 15000000);
+        
+        usdtPairs.sort((a, b) => parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent));
+        const realGainers = usdtPairs.slice(0, 10).map((d, index) => {
+            const cp = parseFloat(d.lastPrice);
+            return {
+                rank: index + 1,
+                sym: d.symbol.replace('USDT', ''),
+                name: d.symbol.replace('USDT', ''), 
+                price: '$' + (cp < 1 ? cp.toFixed(4) : cp.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})),
+                chg: '+' + parseFloat(d.priceChangePercent).toFixed(2) + '%'
+            };
+        });
+        
+        usdtPairs.sort((a, b) => parseFloat(a.priceChangePercent) - parseFloat(b.priceChangePercent));
+        const realLosers = usdtPairs.slice(0, 10).map((d, index) => {
+            const cp = parseFloat(d.lastPrice);
+            return {
+                rank: index + 1,
+                sym: d.symbol.replace('USDT', ''),
+                name: d.symbol.replace('USDT', ''),
+                price: '$' + (cp < 1 ? cp.toFixed(4) : cp.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})),
+                chg: parseFloat(d.priceChangePercent).toFixed(2) + '%'
+            };
+        });
+        
+        renderList('gainers-list', realGainers, true);
+        renderList('losers-list', realLosers, false);
+        
+    } catch (e) {
+        console.error("Dashboard veri güncelleme hatası:", e);
+    }
+}
+
+updateMarketData();
+setInterval(updateMarketData, 60000);
+
+let openDropdown = null;
+
+function toggleDropdown(type) {
+    const ddId = 'dropdown-' + type;
+    const btnId = 'btn-' + (type === 'gainers' ? 'gainers' : 'losers');
+    const dd = document.getElementById(ddId);
+    const btn = document.getElementById(btnId);
+    const isOpen = dd.classList.contains('open');
+
+    document.querySelectorAll('.market-dropdown').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('filter-btn-active'));
+    openDropdown = null;
+
+    if (!isOpen) {
+        dd.classList.add('open');
+        btn.classList.add('filter-btn-active');
+        openDropdown = type;
+    }
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#market-filters')) {
+        document.querySelectorAll('.market-dropdown').forEach(el => el.classList.remove('open'));
+        document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('filter-btn-active'));
+        openDropdown = null;
+    }
+});
+
+// Üst Menü Arama Çubuğunu Aktifleştirme (Otomatik Tamamlama)
+const globalSearchNameMap = {
+  'BTC': 'Bitcoin', 'ETH': 'Ethereum', 'SOL': 'Solana', 'BNB': 'BNB', 'XRP': 'Ripple',
+  'DOGE': 'Dogecoin', 'ADA': 'Cardano', 'AVAX': 'Avalanche', 'SHIB': 'Shiba Inu',
+  'DOT': 'Polkadot', 'LINK': 'Chainlink', 'TRX': 'TRON', 'MATIC': 'Polygon',
+  'NEAR': 'NEAR Protocol', 'LTC': 'Litecoin', 'BCH': 'Bitcoin Cash', 'ICP': 'Internet Computer',
+  'PEPE': 'Pepe', 'FET': 'Fetch.ai', 'APT': 'Aptos', 'RNDR': 'Render', 'ATOM': 'Cosmos',
+  'UNI': 'Uniswap', 'XLM': 'Stellar', 'ARB': 'Arbitrum', 'OP': 'Optimism', 'INJ': 'Injective',
+  'FIL': 'Filecoin', 'TIA': 'Celestia', 'SUI': 'Sui', 'WLD': 'Worldcoin', 'SEI': 'Sei'
+};
+const searchableCoins = Object.keys(globalSearchNameMap).map(k => ({ sym: k, name: globalSearchNameMap[k] }));
+
+document.querySelectorAll('input[placeholder="Sembol ara..."]').forEach(input => {
+    const parent = input.parentElement;
+    parent.style.position = 'relative';
+    
+    const dropdown = document.createElement('div');
+    dropdown.className = 'absolute top-full left-0 mt-2 w-full bg-[#131313] border border-outline-variant/30 rounded-lg shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[999] hidden flex-col max-h-60 overflow-y-auto scroll-hide';
+    parent.appendChild(dropdown);
+    
+    input.addEventListener('input', function(e) {
+        const val = this.value.trim().toLowerCase();
+        if (val.length === 0) {
+            dropdown.classList.add('hidden');
+            dropdown.classList.remove('flex');
+            return;
+        }
+        const matches = searchableCoins.filter(c => c.sym.toLowerCase().includes(val) || c.name.toLowerCase().includes(val)).slice(0, 6);
+        if (matches.length === 0) {
+            dropdown.innerHTML = '<div class="px-4 py-3 text-xs text-on-surface-variant text-center">Sonuç bulunamadı</div>';
+        } else {
+            dropdown.innerHTML = matches.map(c => `
+                <div class="px-4 py-2 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors flex justify-between items-center last:border-0"
+                     onclick="window.location.href='coin.html?coin=${c.sym}&name=${encodeURIComponent(c.name.toUpperCase())}'">
+                    <span class="text-white text-sm font-semibold">${c.sym}</span>
+                    <span class="text-on-surface-variant text-[10px]">${c.name}</span>
+                </div>
+            `).join('');
+        }
+        dropdown.classList.remove('hidden');
+        dropdown.classList.add('flex');
+    });
+
+    input.addEventListener('keypress', async function(e) {
+        if(e.key === 'Enter' && this.value.trim() !== '') {
+            const val = this.value.trim().toUpperCase();
+            
+            // Eğer listede varsa direkt git
+            const match = searchableCoins.find(c => c.sym.toUpperCase() === val || c.name.toUpperCase() === val);
+            if (match) {
+                window.location.href = `coin.html?coin=${match.sym}&name=${encodeURIComponent(match.name.toUpperCase())}`;
+                return;
+            }
+            
+            // Listede yoksa Binance'de var mı diye kontrol et
+            try {
+                const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${val}USDT`);
+                if (res.ok) {
+                    window.location.href = `coin.html?coin=${val}&name=${val}`;
+                } else {
+                    input.value = '';
+                    const oldPlaceholder = input.placeholder;
+                    input.placeholder = 'Bulunamadı!';
+                    setTimeout(() => input.placeholder = oldPlaceholder, 2000);
+                }
+            } catch (err) {
+                console.error("API Error", err);
+            }
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!parent.contains(e.target)) {
+            dropdown.classList.add('hidden');
+            dropdown.classList.remove('flex');
+        }
+    });
+});
+</script>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-[#0e0e0e]/90 backdrop-blur-2xl border-t border-[#ffffff15] shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
+    <a href="dashboard.html" class="flex flex-col items-center justify-center bg-tertiary/10 text-tertiary rounded-xl px-5 py-2 shadow-[inset_0_0_10px_rgba(0,213,254,0.2)]">
+        <span class="material-symbols-outlined">monitoring</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Market</span>
+    </a>
+    <a href="analysis.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+        <span class="material-symbols-outlined">query_stats</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Analiz</span>
+    </a>
+    <a href="portfolio.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Cüzdan</span>
+    </a>
+    <a href="settings.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Ayarlar</span>
+    </a>
+</nav>
+
+</body></html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BUFF | Derin Analiz</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-dim": "#d6d4d3",
+                    "outline-variant": "#484847",
+                    "primary": "#93c5fd",
+                    "secondary-fixed": "#e5e2e1",
+                    "secondary-fixed-dim": "#d6d4d3",
+                    "surface-tint": "#93c5fd",
+                    "on-background": "#ffffff",
+                    "tertiary-container": "#00d5fe",
+                    "primary-fixed-dim": "#60a5fa",
+                    "primary-container": "#00d5fe",
+                    "background": "#0e0e0e",
+                    "tertiary-fixed": "#00d5fe",
+                    "tertiary-dim": "#00c7ec",
+                    "surface-bright": "#2c2c2c",
+                    "error-dim": "#d7383b",
+                    "surface-dim": "#0e0e0e",
+                    "on-tertiary": "#004e5f",
+                    "secondary": "#e5e2e1",
+                    "inverse-on-surface": "#565555",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#525151",
+                    "surface-variant": "#262626",
+                    "on-secondary-fixed-variant": "#5c5b5b",
+                    "tertiary-fixed-dim": "#00c7ec",
+                    "surface-container-lowest": "#000000",
+                    "surface-container-highest": "#262626",
+                    "on-error-container": "#ffa8a3",
+                    "on-secondary-fixed": "#403f3f",
+                    "surface": "#0e0e0e",
+                    "secondary-container": "#474746",
+                    "on-tertiary-fixed-variant": "#004e5f",
+                    "on-primary-fixed": "#004734",
+                    "error-container": "#9f0519",
+                    "outline": "#767575",
+                    "primary-dim": "#60a5fa",
+                    "on-surface": "#ffffff",
+                    "error": "#ff716c",
+                    "tertiary": "#00d5fe",
+                    "on-secondary-container": "#d2d0cf",
+                    "surface-container": "#1a1a1a",
+                    "inverse-surface": "#fcf9f8",
+                    "on-primary-container": "#005c44",
+                    "on-error": "#490006",
+                    "on-primary-fixed-variant": "#00664c",
+                    "on-tertiary-container": "#004553",
+                    "on-surface-variant": "#adaaaa",
+                    "inverse-primary": "#006c51",
+                    "primary-fixed": "#2563eb",
+                    "on-tertiary-fixed": "#002f39",
+                    "surface-container-low": "#131313",
+                    "surface-container-high": "#20201f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #0e0e0e; }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .glass-panel { background: rgba(38, 38, 38, 0.6); backdrop-filter: blur(20px); }
+        .kinetic-void-bg { background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0e0e0e 100%); }
+        .glow-cyan { text-shadow: 0 0 10px rgba(0, 255, 194, 0.4); }
+        .glow-border:focus { box-shadow: -2px 0 0 0 #93c5fd; }
+        .kinetic-void-shadow { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0e0e0e; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .premium-glow { box-shadow: 0 0 15px rgba(0, 213, 254, 0.3); }
+        .premium-glow:hover { box-shadow: 0 0 25px rgba(0, 213, 254, 0.5); }
+        
+        /* AI Markdown Styles */
+        .ai-markdown-content h1, .ai-markdown-content h2, .ai-markdown-content h3 { font-family: 'Space Grotesk', sans-serif; font-weight: bold; color: #00d5fe; margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.1rem; }
+        .ai-markdown-content p { margin-bottom: 1rem; }
+        .ai-markdown-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .ai-markdown-content ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .ai-markdown-content li { margin-bottom: 0.5rem; }
+        .ai-markdown-content strong { color: #ffffff; font-weight: 600; }
+        .ai-markdown-content blockquote { border-left: 3px solid #00d5fe; padding-left: 1rem; color: #adaaaa; font-style: italic; margin-bottom: 1rem; }
+        .ai-markdown-content code { background-color: #262626; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-size: 0.9em; color: #93c5fd; }
+        .ai-markdown-content table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; margin-bottom: 1.5rem; text-align: left; font-size: 0.85rem; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .ai-markdown-content th { background-color: rgba(0, 213, 254, 0.15); color: #00d5fe; font-weight: 600; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(0, 213, 254, 0.3); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; }
+        .ai-markdown-content td { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #d2d0cf; }
+        .ai-markdown-content tr:last-child td { border-bottom: none; }
+        .ai-markdown-content tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.02); }
+    </style>
+</head>
+<body class="bg-background text-on-surface overflow-hidden h-screen flex flex-col">
+
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e0e]/40 backdrop-blur-xl kinetic-void-shadow h-16 px-8 flex justify-between items-center max-w-full">
+    <div class="flex items-center gap-8">
+        <a href="dashboard.html" class="text-2xl font-bold tracking-tighter text-tertiary drop-shadow-[0_0_8px_rgba(0,213,254,0.6)] font-headline">BUFF</a>
+        <div class="hidden md:flex gap-6 font-headline tracking-tight text-sm">
+            <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="dashboard.html">Piyasalar</a>
+            <a class="text-tertiary border-b-2 border-tertiary pb-1" href="analysis.html">Derin Analiz</a>
+            <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="portfolio.html">Portföy</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="hidden lg:flex items-center bg-surface-container-lowest border-l-2 px-3 py-1.5 rounded-lg border-tertiary">
+            <span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+            <input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-on-surface placeholder:text-on-surface-variant" placeholder="Sembol ara..." type="text"/>
+        </div>
+        <div class="flex items-center gap-3">
+        <div class="relative inline-block text-left" id="notification-dropdown-container">
+            <span onclick="toggleNotifications()" class="material-symbols-outlined text-on-surface-variant hover:text-tertiary cursor-pointer transition-colors relative">
+                notifications
+                <span id="notification-badge" class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+            </span>
+            
+            <div id="notification-menu" class="absolute right-0 mt-4 w-80 bg-[#131313] border border-outline-variant/30 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[999] flex-col hidden" style="border-radius: 12px;">
+                <div class="px-4 py-3 border-b border-outline-variant/20 flex justify-between items-center bg-[#1a1a1a] rounded-t-xl">
+                    <span class="font-headline font-semibold text-sm text-white">Bildirimler</span>
+                    <span onclick="markAllAsRead()" class="text-[10px] text-tertiary cursor-pointer hover:underline">Tümünü Okundu İşaretle</span>
+                </div>
+                <div class="max-h-80 overflow-y-auto scroll-hide">
+                    <div class="px-4 py-3 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[10px] font-bold text-[#00FFC2] uppercase tracking-widest">Yükseliş Alert</span>
+                            <span class="text-[9px] text-on-surface-variant">2dk önce</span>
+                        </div>
+                        <p class="text-xs text-white leading-relaxed"><span class="font-bold">Bitcoin (BTC)</span> %5'ten fazla büyüme gösterdi ve 78,000 dolar direncini aştı.</p>
+                    </div>
+                    <div class="px-4 py-3 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[10px] font-bold text-error uppercase tracking-widest">Düşüş Alert</span>
+                            <span class="text-[9px] text-on-surface-variant">15dk önce</span>
+                        </div>
+                        <p class="text-xs text-white leading-relaxed"><span class="font-bold">Ethereum (ETH)</span> %5'ten fazla değer kaybetti ve 3,000 doların altına geriledi.</p>
+                    </div>
+                    <div class="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors rounded-b-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[10px] font-bold text-tertiary uppercase tracking-widest">Sistem</span>
+                            <span class="text-[9px] text-on-surface-variant">1sa önce</span>
+                        </div>
+                        <p class="text-xs text-white leading-relaxed">Takip listenizdeki <span class="font-bold">Solana (SOL)</span> için yeni yapay zeka analiz raporu hazırlandı.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function markAllAsRead() {
+            const badge = document.getElementById('notification-badge');
+            if (badge) badge.style.display = 'none';
+        }
+        function toggleNotifications() {
+            const menu = document.getElementById('notification-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+            } else {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+            }
+        }
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('notification-dropdown-container');
+            if (container && !container.contains(e.target)) {
+                const menu = document.getElementById('notification-menu');
+                if (menu && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                }
+            }
+        });
+        </script>
+            <span onclick="window.location.href='settings.html'" class="material-symbols-outlined text-on-surface-variant hover:text-tertiary cursor-pointer transition-colors">settings</span>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content Area -->
+<main class="flex-grow pt-16 flex overflow-hidden kinetic-void-bg">
+    <!-- Left Column: Mark AI Terminal -->
+    <section class="flex flex-col relative flex-grow h-full overflow-hidden">
+        <!-- Terminal Header -->
+        <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-tertiary animate-pulse shadow-[0_0_8px_#00d5fe]"></div>
+                <h2 class="font-headline text-xl font-medium tracking-tight text-white/90">Mark AI Terminal <span class="text-on-surface-variant text-sm font-normal ml-2">v4.0.2 - Live Analysis</span></h2>
+            </div>
+            <div class="flex gap-2">
+                <span class="px-3 py-1 bg-surface-container rounded-full text-[10px] text-on-surface-variant font-label uppercase tracking-widest border border-outline-variant/20">Latency: 14ms</span>
+                <span class="px-3 py-1 bg-surface-container rounded-full text-[10px] text-primary font-label uppercase tracking-widest border border-primary/20">Secure Channel</span>
+            </div>
+        </div>
+
+        <!-- Main Area Content: Chat Style -->
+        <div class="flex-grow overflow-y-auto px-8 py-12 flex flex-col items-center">
+            <div class="w-full max-w-3xl space-y-8">
+                <!-- AI Message Bubble -->
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-tertiary/20 border border-tertiary/30 flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-tertiary text-2xl">smart_toy</span>
+                    </div>
+                    <div class="flex flex-col gap-2 max-w-[85%]">
+                        <div class="bg-surface-container border border-outline-variant/30 p-5 rounded-xl rounded-tl-none shadow-xl">
+                            <p class="text-on-surface leading-relaxed font-body">
+                                Merhaba! Mark AI terminaline hoş geldiniz. Piyasa verilerini anlık olarak tarıyor ve derinlemesine analizler gerçekleştiriyorum. Size bugün nasıl yardımcı olabilirim? Hangi analiz türü ile işlem yapmak istiyorsunuz?
+                            </p>
+                        </div>
+                        <span class="text-[10px] text-on-surface-variant uppercase tracking-widest px-1">Mark AI • Şimdi</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Response Options -->
+                <div class="flex flex-col items-center gap-6 mt-12">
+                    <p class="text-on-surface-variant text-sm font-label uppercase tracking-[0.2em] mb-2 opacity-60">Bir seçenek belirleyin</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                        <button onclick="openCoinSearch('Temel Analiz', 'analytics')" class="group flex items-center justify-between px-6 py-4 bg-tertiary/5 border border-tertiary/20 rounded-lg hover:bg-tertiary/10 hover:border-tertiary transition-all duration-300">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-tertiary/60 group-hover:text-tertiary transition-colors">analytics</span>
+                                <span class="font-headline font-medium text-tertiary">Temel Analiz</span>
+                            </div>
+                            <span class="material-symbols-outlined text-tertiary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+                        </button>
+                        <button onclick="openCoinSearch('Teknik Analiz', 'show_chart')" class="group flex items-center justify-between px-6 py-4 bg-tertiary/5 border border-tertiary/20 rounded-lg hover:bg-tertiary/10 hover:border-tertiary transition-all duration-300">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-tertiary/60 group-hover:text-tertiary transition-colors">show_chart</span>
+                                <span class="font-headline font-medium text-tertiary">Teknik Analiz</span>
+                            </div>
+                            <span class="material-symbols-outlined text-tertiary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+                        </button>
+                        <button onclick="openCoinSearch('Zincir-Üstü Analiz', 'hub')" class="group flex items-center justify-between px-6 py-4 bg-tertiary/5 border border-tertiary/20 rounded-lg hover:bg-tertiary/10 hover:border-tertiary transition-all duration-300">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-tertiary/60 group-hover:text-tertiary transition-colors">hub</span>
+                                <span class="font-headline font-medium text-tertiary">Zincir-Üstü Analiz</span>
+                            </div>
+                            <span class="material-symbols-outlined text-tertiary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+                        </button>
+                        <button onclick="openCoinSearch('Risk ve Strateji Analizi', 'security')" class="group flex items-center justify-between px-6 py-4 bg-tertiary/5 border border-tertiary/20 rounded-lg hover:bg-tertiary/10 hover:border-tertiary transition-all duration-300">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-tertiary/60 group-hover:text-tertiary transition-colors">security</span>
+                                <span class="font-headline font-medium text-tertiary">Risk ve Strateji Analizi</span>
+                            </div>
+                            <span class="material-symbols-outlined text-tertiary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Spacer -->
+        <div class="h-8"></div>
+    </section>
+
+    <!-- Right Sidebar: Premium Features -->
+    <aside class="w-80 bg-[#131313] border-l border-outline-variant/30 flex flex-col h-full flex-shrink-0">
+        <div class="p-6">
+            <h3 class="font-headline text-lg font-bold text-white tracking-tight uppercase">Premium Ayrıcalıkları</h3>
+            <div class="mt-8 space-y-6">
+                <div class="flex gap-4">
+                    <span class="material-symbols-outlined text-tertiary">bolt</span>
+                    <div>
+                        <p class="text-sm font-medium text-on-surface">Limitsiz Analiz</p>
+                        <p class="text-xs text-on-surface-variant mt-1">Mark AI ile günlük sorgu limitlerine takılmadan işlem yapın.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <span class="material-symbols-outlined text-tertiary">precision_manufacturing</span>
+                    <div>
+                        <p class="text-sm font-medium text-on-surface">Derin Teknik Göstergeler</p>
+                        <p class="text-xs text-on-surface-variant mt-1">Özel algoritmalarla hesaplanmış gelişmiş teknik veriler.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <span class="material-symbols-outlined text-tertiary">rocket_launch</span>
+                    <div>
+                        <p class="text-sm font-medium text-on-surface">Öncelikli İşlem</p>
+                        <p class="text-xs text-on-surface-variant mt-1">Ağ yoğunluğunda analizlerinize saniyeler içinde ulaşın.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-auto p-6 border-t border-outline-variant/20">
+            <button class="w-full py-4 bg-tertiary text-on-tertiary font-headline font-bold rounded-none uppercase tracking-widest text-xs premium-glow transition-all duration-300 hover:brightness-110 active:scale-95">
+                PREMİUMA YÜKSELT
+            </button>
+        </div>
+    </aside>
+</main>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-[#0e0e0e]/90 backdrop-blur-2xl border-t border-[#ffffff15] shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
+    <a href="dashboard.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+        <span class="material-symbols-outlined">monitoring</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Market</span>
+    </a>
+    <a href="analysis.html" class="flex flex-col items-center justify-center bg-tertiary/10 text-tertiary rounded-xl px-5 py-2 shadow-[inset_0_0_10px_rgba(0,213,254,0.2)]">
+        <span class="material-symbols-outlined">query_stats</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Analiz</span>
+    </a>
+    <a href="portfolio.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Cüzdan</span>
+    </a>
+    <a href="settings.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary transition-colors">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Ayarlar</span>
+    </a>
+</nav>
+
+<!-- Coin Arama Paneli -->
+<div id="coin-search-overlay" class="fixed inset-0 z-[200] flex items-center justify-center" style="display:none!important">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCoinSearch()"></div>
+    <!-- Panel -->
+    <div class="relative z-10 w-full max-w-lg mx-4">
+        <!-- Panel Header -->
+        <div class="bg-[#131313] border border-outline-variant/30 rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+            <div class="px-5 pt-5 pb-3 border-b border-outline-variant/20">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="cs-icon" class="material-symbols-outlined text-tertiary">analytics</span>
+                        <span id="cs-title" class="font-headline font-semibold text-white text-sm">Temel Analiz</span>
+                    </div>
+                    <button onclick="closeCoinSearch()" class="text-on-surface-variant hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-xl">close</span>
+                    </button>
+                </div>
+                <!-- Bot mesajı -->
+                <p class="text-on-surface-variant text-xs mb-4">Analiz yapmak istediğiniz kripto varlığı seçin:</p>
+                <!-- Arama kutusu -->
+                <div class="flex items-center bg-[#0e0e0e] border border-outline-variant/30 rounded-lg px-3 py-2.5 focus-within:border-tertiary/50 transition-colors">
+                    <span class="material-symbols-outlined text-on-surface-variant text-lg mr-2">search</span>
+                    <input id="cs-input" type="text" placeholder="BTC, Ethereum, Solana..." oninput="filterCoins(this.value)"
+                        class="bg-transparent border-none focus:ring-0 text-sm w-full text-on-surface placeholder:text-on-surface-variant/50"/>
+                </div>
+            </div>
+            <!-- Sonuç Listesi -->
+            <div id="cs-results" class="max-h-64 overflow-y-auto">
+                <!-- JS ile doldurulur -->
+            </div>
+            <!-- Seçili coin footer -->
+            <div id="cs-footer" class="hidden px-5 py-4 border-t border-outline-variant/20 bg-[#0e0e0e]/50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-tertiary/10 border border-tertiary/20 rounded-lg flex items-center justify-center">
+                            <span id="cs-sel-sym" class="text-[10px] font-bold text-tertiary">BTC</span>
+                        </div>
+                        <div>
+                            <p id="cs-sel-name" class="text-sm font-semibold text-white">Bitcoin</p>
+                            <p id="cs-sel-price" class="text-[10px] text-on-surface-variant">$64,281.00</p>
+                        </div>
+                    </div>
+                    <button onclick="addCoin()" class="flex items-center gap-2 px-5 py-2 bg-tertiary text-on-tertiary font-headline font-bold text-xs rounded-lg hover:brightness-110 transition-all">
+                        <span class="material-symbols-outlined text-base">add</span>
+                        Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Devam Alanı (başta gizli) -->
+<div id="chat-continuation" style="display:none" class="flex-grow pt-16 flex overflow-hidden kinetic-void-bg w-full">
+    <section class="flex flex-col relative flex-grow h-full overflow-hidden">
+        <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-tertiary animate-pulse shadow-[0_0_8px_#00d5fe]"></div>
+                <h2 class="font-headline text-xl font-medium tracking-tight text-white/90">Mark AI Terminal <span class="text-on-surface-variant text-sm font-normal ml-2">v4.0.2 - Live Analysis</span></h2>
+            </div>
+            <div class="flex gap-2 items-center">
+                <span id="cc-type-badge" class="px-3 py-1 bg-tertiary/10 rounded-full text-[10px] text-tertiary font-label uppercase tracking-widest border border-tertiary/20">Temel Analiz</span>
+                <span id="cc-coin-badge" class="px-3 py-1 bg-surface-container rounded-full text-[10px] text-on-surface font-label uppercase tracking-widest border border-outline-variant/20">BTC</span>
+                <button onclick="toggleInfoModal()" class="ml-2 w-7 h-7 bg-surface-container-low hover:bg-tertiary/10 hover:text-tertiary hover:border-tertiary/30 rounded-lg text-on-surface-variant flex items-center justify-center border border-white/5 transition-colors" title="Kripto Sözlüğü & Rehber">
+                    <span class="material-symbols-outlined text-sm">help</span>
+                </button>
+                <button onclick="closeAnalysis()" class="ml-1 w-7 h-7 bg-surface-container-low hover:bg-error/10 hover:text-error hover:border-error/30 rounded-lg text-on-surface-variant flex items-center justify-center border border-white/5 transition-colors" title="Analizi Kapat">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+        </div>
+        <!-- Info Modal -->
+        <div id="info-modal" class="absolute top-20 right-8 w-80 bg-[#131313] border border-outline-variant/30 shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[250] flex-col hidden" style="border-radius: 12px; display: none;">
+            <div class="px-4 py-3 border-b border-outline-variant/20 flex justify-between items-center bg-[#1a1a1a] rounded-t-xl">
+                <span class="font-headline font-semibold text-sm text-white flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">school</span> Kripto Sözlüğü</span>
+                <span onclick="toggleInfoModal()" class="material-symbols-outlined text-sm text-on-surface-variant cursor-pointer hover:text-white transition-colors">close</span>
+            </div>
+            <div class="max-h-96 overflow-y-auto scroll-hide p-4 space-y-5">
+                <div>
+                    <h4 class="text-xs font-bold text-tertiary uppercase tracking-widest mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> RSI</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">Fiyatın çok hızlı yükseldiğini veya düştüğünü gösterir. 70 üzeri "Aşırı Alım" (düşüş ihtimali), 30 altı "Aşırı Satım" (yükseliş ihtimali) demektir.</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-tertiary uppercase tracking-widest mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> MACD</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">Trendin yönünü gösterir. Çizgiler yukarı kesişirse yükseliş, aşağı kesişirse düşüş sinyali verebilir.</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-tertiary uppercase tracking-widest mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Bollinger Bantları</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">Volatiliteyi ölçer. Fiyat üst banda değerse pahalı, alt banda değerse ucuz sayılabilir. Bantlar çok daralırsa fiyatta sert bir patlama yakındır.</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-tertiary uppercase tracking-widest mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Destek & Direnç</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">Destek: Düşüşün durmasının beklendiği taban. Direnç: Yükselişin zorlandığı tavan noktası.</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-tertiary uppercase tracking-widest mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> On-Chain (Zincir-Üstü)</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">Borsalara çok para (veya coin) girmesi satışı, borsadan dışarı çıkması ise elde tutma (uzun vade) niyetini gösterir.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex-grow overflow-y-auto px-8 py-6 flex flex-col gap-6" id="cc-messages">
+            <!-- AI yanıtları JS ile gelir -->
+        </div>
+    </section>
+</div>
+
+<script>
+const allCoins = [
+    { sym:'BTC',  name:'Bitcoin',     price:'$64,281.00', chg:'+2.45%' },
+    { sym:'ETH',  name:'Ethereum',    price:'$3,452.88',  chg:'-1.12%' },
+    { sym:'SOL',  name:'Solana',      price:'$145.12',    chg:'+8.75%' },
+    { sym:'BNB',  name:'BNB',         price:'$582.40',    chg:'-0.45%' },
+    { sym:'XRP',  name:'XRP',         price:'$0.6124',    chg:'+1.15%' },
+    { sym:'DOGE', name:'Dogecoin',    price:'$0.1652',    chg:'-4.25%' },
+    { sym:'ADA',  name:'Cardano',     price:'$0.4452',    chg:'+0.88%' },
+    { sym:'AVAX', name:'Avalanche',   price:'$36.45',     chg:'-1.20%' },
+    { sym:'MATIC',name:'Polygon',     price:'$1.04',      chg:'+2.18%' },
+    { sym:'DOT',  name:'Polkadot',    price:'$7.12',      chg:'+0.80%' },
+    { sym:'LINK', name:'Chainlink',   price:'$18.44',     chg:'+3.20%' },
+    { sym:'UNI',  name:'Uniswap',     price:'$9.81',      chg:'+1.50%' },
+    { sym:'PEPE', name:'Pepe',        price:'$0.0000081', chg:'+12.0%' },
+    { sym:'FET',  name:'Fetch.AI',    price:'$2.41',      chg:'+24.0%' },
+    { sym:'LTC',  name:'Litecoin',    price:'$88.20',     chg:'-3.80%' },
+];
+
+let selectedCoin = null;
+let currentAnalysisType = '';
+let currentIcon = '';
+
+function openCoinSearch(type, icon) {
+    currentAnalysisType = type;
+    currentIcon = icon;
+    selectedCoin = null;
+    document.getElementById('cs-title').textContent = type;
+    document.getElementById('cs-icon').textContent = icon;
+    document.getElementById('cs-input').value = '';
+    document.getElementById('cs-footer').classList.add('hidden');
+    renderCoins(allCoins);
+    const overlay = document.getElementById('coin-search-overlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => document.getElementById('cs-input').focus(), 100);
+}
+
+function closeCoinSearch() {
+    document.getElementById('coin-search-overlay').style.display = 'none';
+}
+
+function filterCoins(q) {
+    const filtered = allCoins.filter(c =>
+        c.sym.toLowerCase().includes(q.toLowerCase()) ||
+        c.name.toLowerCase().includes(q.toLowerCase())
+    );
+    renderCoins(filtered);
+}
+
+function renderCoins(list) {
+    const el = document.getElementById('cs-results');
+    if (list.length === 0) {
+        el.innerHTML = '<div class="px-5 py-8 text-center text-on-surface-variant text-sm">Sonuç bulunamadı</div>';
+        return;
+    }
+    el.innerHTML = list.map(c => `
+        <div onclick="selectCoin('${c.sym}','${c.name}','${c.price}','${c.chg}')"
+             class="flex items-center justify-between px-5 py-3.5 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-0 coin-row" data-sym="${c.sym}">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-surface-container rounded-lg flex items-center justify-center">
+                    <span class="text-[10px] font-bold text-tertiary">${c.sym.slice(0,3)}</span>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-on-surface">${c.sym}</p>
+                    <p class="text-[10px] text-on-surface-variant">${c.name}</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm font-headline font-medium text-on-surface">${c.price}</p>
+                <p class="text-[10px] font-bold ${c.chg.startsWith('-') ? 'text-error' : 'text-primary-dim'}">${c.chg}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function selectCoin(sym, name, price, chg) {
+    selectedCoin = { sym, name, price, chg };
+    // Highlight
+    document.querySelectorAll('.coin-row').forEach(r => r.classList.remove('bg-tertiary/5'));
+    const row = document.querySelector(`.coin-row[data-sym='${sym}']`);
+    if (row) row.classList.add('bg-tertiary/5');
+    // Footer
+    document.getElementById('cs-sel-sym').textContent = sym;
+    document.getElementById('cs-sel-name').textContent = name;
+    document.getElementById('cs-sel-price').textContent = price + ' · ' + chg;
+    document.getElementById('cs-footer').classList.remove('hidden');
+}
+
+async function fetchGroqAnalysis(promptText, apiKey) {
+    try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                messages: [{
+                    role: "user",
+                    content: promptText
+                }],
+                model: "llama-3.3-70b-versatile",
+                temperature: 0.7,
+                max_tokens: 1024
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API Hatası: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.choices[0].message.content;
+    } catch (error) {
+        console.error(error);
+        return `**Hata:** Analiz oluşturulurken bir sorun oluştu. Lütfen API anahtarınızı kontrol edin veya internet bağlantınızdan emin olun.\n\nDetay: \`${error.message}\``;
+    }
+}
+
+async function addCoin() {
+    if (!selectedCoin) return;
+    closeCoinSearch();
+
+    // API Key - loaded from localStorage for security, defaults to empty to trigger mock fallback
+    let apiKey = localStorage.getItem('groq_api_key') || '';
+
+    // Analiz tipine göre AI mesajı
+    const msgs = {
+        'Temel Analiz': `${selectedCoin.sym} için temel analiz başlatılıyor. Proje temelleri, whitepaper, geliştirici aktivitesi ve tokenomics verileri taranıyor...`,
+        'Teknik Analiz': `${selectedCoin.sym} için teknik analiz başlatılıyor. RSI, MACD, Bollinger Bands ve destek/direnç seviyeleri hesaplanıyor...`,
+        'Zincir-Üstü Analiz': `${selectedCoin.sym} için zincir-üstü veriler çekiliyor. Whale hareketleri, aktif adresler ve exchange flow analizi yapılıyor...`,
+        'Risk ve Strateji Analizi': `${selectedCoin.sym} için risk ve strateji analizi başlatılıyor. Volatilite, korelasyon matrisi ve portföy uyumu değerlendiriliyor...`,
+    };
+    const aiText = msgs[currentAnalysisType] || `${selectedCoin.sym} analiz ediliyor...`;
+
+    // Badge güncelle
+    document.getElementById('cc-type-badge').textContent = currentAnalysisType;
+    document.getElementById('cc-coin-badge').textContent = selectedCoin.sym;
+
+    // Mesajlar
+    const msgsEl = document.getElementById('cc-messages');
+    msgsEl.innerHTML = `
+        <!-- Kullanıcı seçimi -->
+        <div class="flex justify-end">
+            <div class="bg-tertiary/10 border border-tertiary/20 px-5 py-3 rounded-xl rounded-tr-none max-w-xs">
+                <p class="text-sm text-tertiary font-medium">${currentAnalysisType} — ${selectedCoin.sym}</p>
+                <p class="text-[10px] text-on-surface-variant mt-1">${selectedCoin.price} · ${selectedCoin.chg}</p>
+            </div>
+        </div>
+        <!-- AI Yanıt -->
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-lg bg-tertiary/20 border border-tertiary/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-tertiary text-2xl">smart_toy</span>
+            </div>
+            <div class="flex flex-col gap-2 max-w-[85%] w-full">
+                <div class="bg-surface-container border border-outline-variant/30 p-5 rounded-xl rounded-tl-none shadow-xl w-full overflow-hidden">
+                    <div id="ai-loading" class="flex items-center gap-2 mb-3">
+                        <div class="flex gap-1">
+                            <div class="w-1.5 h-1.5 rounded-full bg-tertiary animate-bounce" style="animation-delay:0ms"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-tertiary animate-bounce" style="animation-delay:150ms"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-tertiary animate-bounce" style="animation-delay:300ms"></div>
+                        </div>
+                        <span class="text-[10px] text-on-surface-variant uppercase tracking-widest">Mark AI Analizi Hazırlıyor...</span>
+                    </div>
+                    <div class="text-on-surface leading-relaxed font-body text-sm ai-markdown-content" id="ai-response-text">${aiText}</div>
+                </div>
+                <span class="text-[10px] text-on-surface-variant uppercase tracking-widest px-1">Mark AI • Şimdi</span>
+            </div>
+        </div>
+    `;
+
+    // Chat continuation göster, ana ekranı gizle
+    document.querySelector('main').style.display = 'none';
+    document.getElementById('chat-continuation').style.display = 'flex';
+
+    if (apiKey) {
+        // Gerçek yapay zeka çağrısı
+        let specificInstructions = "";
+        
+        switch(currentAnalysisType) {
+            case 'Temel Analiz':
+                specificInstructions = `Kullanıcının projenin sağlamlığını sorguladığı bölümdür. Lütfen şunları analiz et ve BİR TABLO FORMATINDA sun:
+1. Tokenomics Analizi Tablosu: Arz dengesi, kilit açılış (vesting) takvimi ve enflasyon oranı değerleri.
+2. Proje Sağlık Taraması: Projenin hangi sorunu çözdüğü ve rakiplerine göre avantajları.
+3. Haber Duyarlılığı (Sentiment): Son 24 saatteki haberlerin ve sosyal medyanın fiyat üzerindeki olası etkisi.
+(Bilgileri uzun paragraflar yerine olabildiğince Markdown tabloları kullanarak parçalara ayırarak ver.)`;
+                break;
+            case 'Teknik Analiz':
+                specificInstructions = `Burada grafik okumayı bilmeyen kullanıcıya tercümanlık yapacaksın. Lütfen şunları TABLOLAR halinde analiz et:
+1. Formasyon Tespiti Tablosu: Şu an grafikteki potansiyel formasyonlar ve anlamları.
+2. İndikatörler Tablosu: RSI, MACD ve Bollinger Bantları'nın güncel tahmini değerleri, sinyalleri (Al/Sat/Bekle) ve kısa yorumları.
+3. Destek ve Direnç Tablosu: Kritik psikolojik ve teknik destek/direnç seviyeleri, bu seviyelerin önem dereceleri (Güçlü/Zayıf).
+(Çıktının büyük çoğunluğu Markdown tabloları şeklinde okunması çok kolay olmalıdır.)`;
+                break;
+            case 'Zincir-Üstü Analiz':
+                specificInstructions = `Blockchain verilerinin röntgenini çeken kısımdır. Lütfen şunları detaylı BİR TABLO şeklinde analiz et:
+1. Balina Takibi (Whale Watching): Büyük cüzdan hareketleri (borsalara giriş mi, soğuk cüzdana çekim mi?).
+2. Borsa Rezerv Analizi: Borsalardaki toplam coin miktarındaki değişim trendi.
+3. Aktif Adres Sayısı: Ağdaki gerçek kullanım oranındaki artış/azalış trendi.
+(İlgili metrikleri, durumunu ve ne anlama geldiğini içeren Markdown tabloları oluştur.)`;
+                break;
+            case 'Risk ve Strateji Analizi':
+                specificInstructions = `Kullanıcının kendi durumuna göre senden tavsiye aldığı bölümdür. Lütfen analizlerini TABLOLARLA destekle:
+1. Portföy Risk Testi Tablosu: Bu varlığın diğer majör varlıklarla korelasyonu ve genel risk skoru.
+2. Stres Testi Senaryoları Tablosu: "Piyasa %10 düşerse" veya "%10 çıkarsa" bu varlık nasıl tepki verir? Beklenen etki tablosu.
+3. DCA (Dolar Maliyet Ortalaması) Planlayıcı Tablosu: Mevcut fiyata göre farklı alım/satım veya biriktirme kademeleri.
+(Uzun paragraflar yerine parçalara ayrılmış Markdown tabloları kullan.)`;
+                break;
+        }
+
+        let liveDataText = `Şu anki güncel fiyatı: ${selectedCoin.price}, Son 24 saatteki değişimi: ${selectedCoin.chg}.`;
+        
+        try {
+            // Binance üzerinden canlı veri çekiyoruz
+            const binanceResponse = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${selectedCoin.sym}USDT`);
+            if (binanceResponse.ok) {
+                const binanceData = await binanceResponse.json();
+                liveDataText = `CANLI BİYANSA (BINANCE) VERİLERİ (Son 24 Saat):
+- Mevcut Fiyat: $${Number(binanceData.lastPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 6})}
+- 24s Değişim: %${Number(binanceData.priceChangePercent).toFixed(2)}
+- 24s En Yüksek: $${Number(binanceData.highPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 6})}
+- 24s En Düşük: $${Number(binanceData.lowPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 6})}
+- 24s Hacim: ${Number(binanceData.volume).toLocaleString(undefined, {maximumFractionDigits: 0})} ${selectedCoin.sym}
+
+Not: Lütfen analizini ezberindeki eski bilgilere göre değil, KESİNLİKLE yukarıda sana iletilen bu canlı ve anlık piyasa verilerine dayanarak yap.`;
+            }
+        } catch(e) {
+            console.log("Canlı veri çekilemedi, varsayılan değerler kullanılacak.", e);
+        }
+
+        const promptText = `Sen "Mark AI" adında profesyonel, disiplinli, analitik ve finansal zekası yüksek bir kripto para uzmanısın. BUFF uygulamasının yapay zekasısın.
+Kullanıcı senden ${selectedCoin.name} (${selectedCoin.sym}) coin'i için "${currentAnalysisType}" raporu istiyor. 
+
+${liveDataText}
+
+AŞAĞIDAKİ KURALLARA YUKARIDAN AŞAĞIYA (ÖNEM SIRASIYLA) KESİNLİKLE UYACAKSIN:
+1. ROL VE TON: Çok ciddi, objektif, net ve teknik bir dil kullan. Saçmalama, gereksiz laf kalabalığı yapma ve asla hayal ürünü uydurma (halüsinasyon görme). Sadece mantığa ve veriye dayalı konuş.
+2. YATIRIM TAVSİYESİ YASAĞI (NFA): Kesinlikle "Al", "Sat" veya "Kesin yükselecek/düşecek" gibi finansal tavsiyeler verme. Sen bir "asist" ustasısın; verileri ve ihtimalleri sun, şutu (kararı) tamamen kullanıcıya bırak.
+3. ODAKLANMA: Sadece senden istenen "${currentAnalysisType}" kategorisinin kriterlerine bağlı kal. Konuyu dağıtma.
+4. FORMAT: Çıktıyı uzun ve yorucu PARAGRAFLAR YERİNE, büyük oranda Markdown TABLOLARI (Tables) şeklinde ver. Verileri "Metrik | Değer | Durum/Yorum" tarzı net, temiz tablolara dök. Sadece özet ve açıklamalar için metin kullan. Göz yormayan, çok taranabilir (scannable) bir yapı kur.
+5. SONUÇ VE ÖZET: Raporun sonunda mutlaka "Olası Senaryolar ve Dikkat Edilmesi Gerekenler" adında bir başlık açıp, ihtimalleri yönlendirme yapmadan listele.
+6. DİL: Çıktının tamamı kusursuz bir Türkçe ile yazılmalıdır.
+
+GÖREVİN VE ANALİZ KRİTERLERİN:
+${specificInstructions}
+
+Lütfen raporunu sadece bu kurallara bağlı kalarak oluştur.`;
+
+        const responseText = await fetchGroqAnalysis(promptText, apiKey);
+        
+        document.getElementById('ai-loading').style.display = 'none';
+        document.getElementById('ai-response-text').innerHTML = marked.parse(responseText);
+        
+    } else {
+        // Mock veri (Eğer API key girilmezse)
+        setTimeout(() => {
+            const detailedMsgs = {
+                'Temel Analiz': `**${selectedCoin.name} (${selectedCoin.sym})** için temel analiz tamamlandı.\n\n* **Piyasa Değeri:** Üst %10 dilimde\n* **Geliştirici Aktivitesi:** Yüksek (son 30 gün: 142 commit)\n* **Topluluk Büyümesi:** +18% aylık\n* **Token Dağılımı:** %35 halka açık, %65 kilitli\n\n**Genel Değerlendirme:** Güçlü fundamentaller. Uzun vadeli yatırım için olumlu görünüm.`,
+                'Teknik Analiz': `**${selectedCoin.name} (${selectedCoin.sym})** teknik analiz raporu:\n\n* **RSI (14):** 58 — Nötr Bölge\n* **MACD:** Pozitif kesişim mevcut\n* **Bollinger Bands:** Orta bant üzerinde\n* **Destek:** ${selectedCoin.price} bölgesi\n* **Direnç:** %8 yukarıda\n\n**Sonuç:** Kısa vadeli yükseliş trendi devam edebilir.`,
+                'Zincir-Üstü Analiz': `**${selectedCoin.name} (${selectedCoin.sym})** on-chain raporu:\n\n* **Aktif Adres (24s):** +12.4k\n* **Whale Transferleri:** 3 büyük hareket tespit edildi\n* **Exchange Net Flow:** -2,100 BTC (borsa çıkışı)\n* **HODL Dalgası:** Uzun vadeli tutucular artıyor\n\n**Yorum:** Birikim fazında görünüyor, satış baskısı azalıyor.`,
+                'Risk ve Strateji Analizi': `**${selectedCoin.name} (${selectedCoin.sym})** risk raporu:\n\n* **Volatilite (30g):** %68 — Orta-Yüksek\n* **BTC Korelasyonu:** 0.82\n* **Sharpe Oranı:** 1.4 — Kabul edilebilir\n* **Max Drawdown (90g):** -%34\n\n**Strateji Önerisi:** Pozisyonu %5-8 portföy ağırlığıyla sınırlı tutun.`,
+            };
+            
+            document.getElementById('ai-loading').style.display = 'none';
+            document.getElementById('ai-response-text').innerHTML = marked.parse(detailedMsgs[currentAnalysisType] || aiText);
+        }, 1800);
+    }
+}
+
+function closeAnalysis() {
+    document.getElementById('chat-continuation').style.display = 'none';
+    document.querySelector('main').style.display = 'flex';
+}
+
+function toggleInfoModal() {
+    const modal = document.getElementById('info-modal');
+    if (modal.style.display === 'none' || modal.classList.contains('hidden')) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+    } else {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+    }
+}
+</script>
+
+</body></html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BUFF - Market Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "on-secondary": "#525151",
+                    "error-dim": "#d7383b",
+                    "surface-container-highest": "#262626",
+                    "error-container": "#9f0519",
+                    "primary-dim": "#60a5fa",
+                    "tertiary": "#74e0ff",
+                    "surface-container-high": "#20201f",
+                    "on-error": "#490006",
+                    "secondary": "#e5e2e1",
+                    "on-error-container": "#ffa8a3",
+                    "inverse-primary": "#006c51",
+                    "primary": "#93c5fd",
+                    "on-secondary-fixed": "#403f3f",
+                    "on-background": "#ffffff",
+                    "inverse-surface": "#fcf9f8",
+                    "surface-tint": "#3b82f6",
+                    "background": "#0e0e0e",
+                    "surface-bright": "#2c2c2c",
+                    "primary-fixed": "#2563eb",
+                    "on-secondary-container": "#d2d0cf",
+                    "tertiary-dim": "#00c7ec",
+                    "surface-variant": "#262626",
+                    "on-tertiary": "#004e5f",
+                    "primary-fixed-dim": "#60a5fa",
+                    "surface-container": "#1a1a1a",
+                    "outline-variant": "#484847",
+                    "on-tertiary-fixed": "#002f39",
+                    "secondary-fixed-dim": "#d6d4d3",
+                    "surface": "#0e0e0e",
+                    "on-surface-variant": "#adaaaa",
+                    "secondary-container": "#474746",
+                    "on-tertiary-container": "#004553",
+                    "surface-dim": "#0e0e0e",
+                    "secondary-fixed": "#e5e2e1",
+                    "on-primary-container": "#005c44",
+                    "inverse-on-surface": "#565555",
+                    "on-tertiary-fixed-variant": "#004e5f",
+                    "primary-container": "#3b82f6",
+                    "secondary-dim": "#d6d4d3",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed-variant": "#5c5b5b",
+                    "error": "#ff716c",
+                    "surface-container-low": "#131313",
+                    "on-surface": "#ffffff",
+                    "tertiary-fixed": "#00d5fe",
+                    "tertiary-fixed-dim": "#00c7ec",
+                    "on-primary-fixed-variant": "#00664c",
+                    "on-primary-fixed": "#004734",
+                    "surface-container-lowest": "#000000",
+                    "tertiary-container": "#00d5fe",
+                    "outline": "#767575"
+                },
+                "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+                },
+                "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+                }
+            },
+        },
+    }
+</script>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .kinetic-grid {
+        background-image: 
+            linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+    }
+    .glow-green { box-shadow: 0 0 15px rgba(0, 255, 194, 0.6); }
+    .glow-red   { box-shadow: 0 0 15px rgba(215, 56, 59, 0.4); }
+    .logo-glow  { text-shadow: 0 0 12px rgba(116, 224, 255, 0.8), 0 0 25px rgba(116, 224, 255, 0.4); }
+    .scroll-hide::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body">
+
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e0e]/40 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] h-16 px-8 flex justify-between items-center max-w-full border-b border-white/5">
+    <div class="flex items-center gap-8">
+        <a href="dashboard.html" class="text-2xl font-bold tracking-tighter text-[#74e0ff] drop-shadow-[0_0_8px_rgba(116,224,255,0.6)] font-headline">BUFF</a>
+        <div class="hidden md:flex gap-6 font-headline tracking-tight text-sm">
+            <a class="text-[#74e0ff] border-b-2 border-[#74e0ff] pb-1" href="dashboard.html">Piyasalar</a>
+            <a class="text-[#adaaaa] hover:text-[#74e0ff] transition-colors" href="analysis.html">Derin Analiz</a>
+            <a class="text-[#adaaaa] hover:text-[#74e0ff] transition-colors" href="portfolio.html">Portföy</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="hidden lg:flex items-center bg-[#000000] border-l-2 px-3 py-1.5 rounded-lg border-[#74e0ff]">
+            <span class="material-symbols-outlined text-[#767575] text-sm mr-2">search</span>
+            <input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-on-surface" placeholder="Sembol ara..." type="text"/>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="javascript:history.back()" class="hidden md:flex items-center gap-1 text-[#adaaaa] hover:text-[#74e0ff] transition-colors text-sm font-medium">
+                <span class="material-symbols-outlined text-base">arrow_back</span>
+                Geri
+            </a>
+            <div class="relative inline-block text-left" id="notification-dropdown-container">
+                <span onclick="toggleNotifications()" class="material-symbols-outlined text-[#adaaaa] hover:text-[#74e0ff] cursor-pointer transition-colors relative">
+                    notifications
+                    <span id="notification-badge" class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+                </span>
+                
+                <div id="notification-menu" class="absolute right-0 mt-4 w-80 bg-[#131313] border border-outline-variant/30 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[999] flex-col hidden" style="border-radius: 12px;">
+                    <div class="px-4 py-3 border-b border-outline-variant/20 flex justify-between items-center bg-[#1a1a1a] rounded-t-xl">
+                        <span class="font-headline font-semibold text-sm text-white">Bildirimler</span>
+                        <span onclick="markAllAsRead()" class="text-[10px] text-tertiary cursor-pointer hover:underline">Tümünü Okundu İşaretle</span>
+                    </div>
+                    <div class="max-h-80 overflow-y-auto scroll-hide">
+                        <div class="px-4 py-3 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold text-[#00FFC2] uppercase tracking-widest">Yükseliş Alert</span>
+                                <span class="text-[9px] text-[#adaaaa]">2dk önce</span>
+                            </div>
+                            <p class="text-xs text-white leading-relaxed"><span class="font-bold">Bitcoin (BTC)</span> %5'ten fazla büyüme gösterdi ve 78,000 dolar direncini aştı.</p>
+                        </div>
+                        <div class="px-4 py-3 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold text-[#ff716c] uppercase tracking-widest">Düşüş Alert</span>
+                                <span class="text-[9px] text-[#adaaaa]">15dk önce</span>
+                            </div>
+                            <p class="text-xs text-white leading-relaxed"><span class="font-bold">Ethereum (ETH)</span> %5'ten fazla değer kaybetti ve 3,000 doların altına geriledi.</p>
+                        </div>
+                        <div class="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors rounded-b-xl">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold text-[#74e0ff] uppercase tracking-widest">Sistem</span>
+                                <span class="text-[9px] text-[#adaaaa]">1sa önce</span>
+                            </div>
+                            <p class="text-xs text-white leading-relaxed">Takip listenizdeki <span class="font-bold">Solana (SOL)</span> için yeni yapay zeka analiz raporu hazırlandı.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            function markAllAsRead() {
+                const badge = document.getElementById('notification-badge');
+                if (badge) badge.style.display = 'none';
+            }
+            function toggleNotifications() {
+                const menu = document.getElementById('notification-menu');
+                if (menu.classList.contains('hidden')) {
+                    menu.classList.remove('hidden');
+                    menu.classList.add('flex');
+                } else {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                }
+            }
+            document.addEventListener('click', function(e) {
+                const container = document.getElementById('notification-dropdown-container');
+                if (container && !container.contains(e.target)) {
+                    const menu = document.getElementById('notification-menu');
+                    if (menu && !menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                        menu.classList.remove('flex');
+                    }
+                }
+            });
+            </script>
+            <span onclick="window.location.href='settings.html'" class="material-symbols-outlined text-[#adaaaa] hover:text-[#74e0ff] cursor-pointer transition-colors">settings</span>
+        </div>
+    </div>
+</nav>
+
+<main class="pt-16 min-h-screen flex flex-col md:flex-row">
+    <!-- Center/Left Area (75% width) -->
+    <section class="flex-1 relative p-6 overflow-hidden" style="min-height: 614px;">
+        <!-- Grid Background -->
+        <div class="absolute inset-0 kinetic-grid opacity-40"></div>
+
+        <!-- TradingView Chart Container Wrapper -->
+        <div class="absolute inset-0 z-0 pt-40 px-4 pb-20 pointer-events-auto">
+            <div id="tv-chart" class="w-full h-full" style="min-height: 400px;"></div>
+            <div id="debug-log" class="absolute top-32 right-4 text-error text-xs font-mono z-50"></div>
+        </div>
+
+        <!-- Floating Hero Title - coin bilgileri URL'den okunur -->
+        <div class="absolute top-12 left-12 z-10 pointer-events-none">
+            <a id="smart-back-btn" href="#" class="inline-flex items-center gap-2 text-[#adaaaa] hover:text-[#74e0ff] transition-colors mb-6 font-label text-sm uppercase tracking-widest cursor-pointer group pointer-events-auto">
+                <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                Geri Dön
+            </a>
+            <h1 id="coin-title" class="font-headline text-5xl font-extrabold text-on-surface tracking-tighter mb-2">BTC/BITCOIN</h1>
+            <p class="text-on-surface-variant font-label text-sm uppercase tracking-[0.2em]">Live Market Intelligence</p>
+        </div>
+    </section>
+
+    <!-- Right Panel (25% width) -->
+    <aside class="w-full md:w-96 bg-[#0e0e0e] border-l border-white/5 p-8 flex flex-col">
+        <div class="flex items-center justify-between mb-10">
+            <h2 class="font-headline text-xl font-bold text-on-surface">Mark AI Analizi</h2>
+            <div class="flex space-x-1">
+                <div class="w-2 h-2 rounded-full bg-primary-dim animate-pulse"></div>
+                <div class="w-2 h-2 rounded-full bg-primary-dim/30"></div>
+            </div>
+        </div>
+
+        <!-- Coin Stats -->
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="bg-surface-container rounded-xl p-4">
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold mb-1">Fiyat</p>
+                <p id="coin-price" class="text-lg font-headline font-bold text-primary">$64,281.00</p>
+            </div>
+            <div class="bg-surface-container rounded-xl p-4">
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold mb-1">24s Değişim</p>
+                <p id="coin-change" class="text-lg font-headline font-bold text-primary">+2.4%</p>
+            </div>
+        </div>
+
+        <div class="space-y-8 flex-1">
+            <!-- Momentum -->
+            <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Momentum Analizi</span>
+                </div>
+                <p class="text-sm text-on-surface leading-relaxed font-light">
+                    Piyasa şu anda güçlü bir boğa formasyonu sergiliyor. Alım hacmi %14.2 oranında artış gösterdi.
+                </p>
+            </div>
+            <!-- Direnç -->
+            <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Direnç Seviyeleri</span>
+                </div>
+                <p class="text-sm text-on-surface leading-relaxed font-light">
+                    Üst direnç bandı kırılmak üzere. AI verileri önümüzdeki 4 saat içinde volatilite artışı öngörüyor.
+                </p>
+            </div>
+            <!-- Risk -->
+            <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Risk Puanı</span>
+                </div>
+                <div class="h-1 w-full bg-surface-container rounded-full overflow-hidden">
+                    <div class="h-full w-2/3 bg-tertiary shadow-[0_0_10px_#74e0ff]"></div>
+                </div>
+                <p class="text-[10px] text-tertiary uppercase font-bold tracking-tighter">Stabil - Düşük Risk</p>
+            </div>
+        </div>
+
+        <div class="mt-auto pt-10">
+            <button class="w-full bg-[#1a1a1a] border border-primary/20 text-primary font-headline font-bold py-5 rounded-lg hover:bg-primary hover:text-background transition-all duration-300 group flex items-center justify-center space-x-3">
+                <span class="text-lg">Tavsiye Al</span>
+                <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
+            </button>
+            <p class="text-center mt-4 text-[10px] text-on-surface-variant uppercase tracking-widest opacity-50">Mark v2.4 Engine Active</p>
+        </div>
+    </aside>
+</main>
+
+<!-- Glassmorphism Floating Stats -->
+<div class="fixed bottom-12 left-12 hidden md:flex space-x-12 px-8 py-4 bg-surface-variant/40 backdrop-blur-2xl rounded-full border border-outline-variant/15">
+    <div class="flex flex-col">
+        <span id="stat-symbol" class="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">BTC / USDT</span>
+        <span id="stat-price" class="text-xl font-headline font-bold text-primary">64,281.50</span>
+    </div>
+    <div class="flex flex-col border-l border-outline-variant/20 pl-12">
+        <span class="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">24H Change</span>
+        <span id="stat-change" class="text-xl font-headline font-bold text-primary">+2.4%</span>
+    </div>
+    <div class="flex flex-col border-l border-outline-variant/20 pl-12">
+        <span class="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">Volume</span>
+        <span class="text-xl font-headline font-bold text-on-surface">1.2B</span>
+    </div>
+</div>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-[#0e0e0e]/80 backdrop-blur-2xl border-t border-[#ffffff15] shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
+    <a href="dashboard.html" class="flex flex-col items-center justify-center text-[#adaaaa]">
+        <span class="material-symbols-outlined">monitoring</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Market</span>
+    </a>
+    <a href="analysis.html" class="flex flex-col items-center justify-center text-[#adaaaa]">
+        <span class="material-symbols-outlined">query_stats</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Analiz</span>
+    </a>
+    <div class="flex flex-col items-center justify-center text-[#00d5fe] bg-[#00d5fe]/10 shadow-[inset_0_0_10px_rgba(0,213,254,0.2)] rounded-xl px-4 py-1">
+        <span class="material-symbols-outlined">currency_exchange</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Trade</span>
+    </div>
+    <a href="portfolio.html" class="flex flex-col items-center justify-center text-[#adaaaa]">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        <span class="text-[10px] font-medium mt-1 tracking-widest uppercase">Cüzdan</span>
+    </a>
+</nav>
+
+<script>
+    // Global hata yakalayıcı
+    window.addEventListener('error', function(e) {
+        const debugLog = document.getElementById('debug-log');
+        if(debugLog) {
+            debugLog.textContent += " HATA: " + e.message;
+        }
+    });
+
+    // --- Akıllı Geri Dönüş Sistemi ---
+    if (document.referrer && !document.referrer.includes('coin.html')) {
+        sessionStorage.setItem('lastMainPage', document.referrer);
+    }
+    
+    document.getElementById('smart-back-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        const lastPage = sessionStorage.getItem('lastMainPage') || 'dashboard.html';
+        window.location.href = lastPage;
+    });
+
+    // URL'den coin bilgilerini oku
+    const params = new URLSearchParams(window.location.search);
+    const coin   = params.get('coin')   || 'BTC';
+    const name   = params.get('name')   || 'BITCOIN';
+
+    document.getElementById('coin-title').textContent  = coin + '/' + name;
+    document.getElementById('stat-symbol').textContent = coin + ' / USDT';
+    document.title = 'BUFF | ' + coin + ' - ' + name;
+
+    // --- TradingView Chart ---
+    const chartProperties = {
+        layout: {
+            background: { type: 'solid', color: 'transparent' },
+            textColor: '#adaaaa',
+        },
+        grid: {
+            vertLines: { color: 'rgba(255, 255, 255, 0.03)' },
+            horzLines: { color: 'rgba(255, 255, 255, 0.03)' },
+        },
+        crosshair: {
+            mode: LightweightCharts.CrosshairMode.Normal,
+        },
+        rightPriceScale: {
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+        },
+        timeScale: {
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            timeVisible: true,
+        },
+    };
+
+    const chartContainer = document.getElementById('tv-chart');
+    
+    // Fallback boyutlarla oluştur, sonra ResizeObserver ile esnet
+    const chart = LightweightCharts.createChart(chartContainer, {
+        ...chartProperties,
+        width: chartContainer.clientWidth || 800,
+        height: chartContainer.clientHeight || 400
+    });
+    
+    const candleSeries = chart.addCandlestickSeries({
+        upColor: '#00FFC2',
+        downColor: '#ff716c',
+        borderDownColor: '#ff716c',
+        borderUpColor: '#00FFC2',
+        wickDownColor: '#ff716c',
+        wickUpColor: '#00FFC2',
+    });
+
+    // Otomatik Boyutlandırma (Çok Daha Güvenilir)
+    new ResizeObserver(entries => {
+        if (entries.length === 0 || entries[0].target !== chartContainer) { return; }
+        const newRect = entries[0].contentRect;
+        if (newRect.width > 0 && newRect.height > 0) {
+            chart.applyOptions({ width: newRect.width, height: newRect.height });
+        }
+    }).observe(chartContainer);
+
+    // Fetch Binance Data (1-minute polling)
+    async function fetchBinanceData() {
+        const symbol = coin + 'USDT';
+        const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=500`;
+        
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Ağ hatası: ' + res.status);
+            const data = await res.json();
+            
+            const cdata = data.map(d => {
+                return {
+                    time: Math.floor(d[0] / 1000), // Kesinlikle integer olmalı
+                    open: parseFloat(d[1]),
+                    high: parseFloat(d[2]),
+                    low: parseFloat(d[3]),
+                    close: parseFloat(d[4])
+                }
+            });
+            
+            // Veriyi sıralı olduğundan emin olalım
+            cdata.sort((a, b) => a.time - b.time);
+            
+            candleSeries.setData(cdata);
+            chart.timeScale().fitContent();
+            
+            document.getElementById('debug-log').textContent = ""; // Hata yoksa temizle
+        } catch (err) {
+            console.error("Binance grafik verisi çekilemedi:", err);
+            document.getElementById('debug-log').textContent = "Hata: " + err.message;
+        }
+    }
+    
+    async function fetchTicker() {
+        const symbol = coin + 'USDT';
+        const url = `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`;
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Network response was not ok');
+            const data = await res.json();
+            
+            const currentPrice = parseFloat(data.lastPrice);
+            const changePercent = parseFloat(data.priceChangePercent);
+            
+            const formattedPrice = currentPrice < 1 ? currentPrice.toString() : currentPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            const formattedChange = changePercent > 0 ? '+' + changePercent.toFixed(2) + '%' : changePercent.toFixed(2) + '%';
+            
+            document.getElementById('coin-price').textContent = '$' + formattedPrice;
+            document.getElementById('stat-price').textContent = formattedPrice;
+            
+            const changeEl = document.getElementById('coin-change');
+            const statChangeEl = document.getElementById('stat-change');
+            changeEl.textContent = formattedChange;
+            statChangeEl.textContent = formattedChange;
+            
+            const color = changePercent >= 0 ? '#00FFC2' : '#ff716c';
+            changeEl.style.color = color;
+            statChangeEl.style.color = color;
+            
+        } catch(e) {
+            console.error("Ticker hatası:", e);
+            document.getElementById('coin-price').textContent = 'API Hatası';
+        }
+    }
+
+    function updateAll() {
+        fetchBinanceData();
+        fetchTicker();
+    }
+
+    // İlk yükleme
+    updateAll();
+    
+    // Polling every 1 minute (60,000 ms)
+    setInterval(updateAll, 60000);
+
+    // Polling every 1 minute (60,000 ms)
+    setInterval(updateAll, 60000);
+
+    // Üst Menü Arama Çubuğunu Aktifleştirme (Otomatik Tamamlama)
+    const globalSearchNameMap = {
+      'BTC': 'Bitcoin', 'ETH': 'Ethereum', 'SOL': 'Solana', 'BNB': 'BNB', 'XRP': 'Ripple',
+      'DOGE': 'Dogecoin', 'ADA': 'Cardano', 'AVAX': 'Avalanche', 'SHIB': 'Shiba Inu',
+      'DOT': 'Polkadot', 'LINK': 'Chainlink', 'TRX': 'TRON', 'MATIC': 'Polygon',
+      'NEAR': 'NEAR Protocol', 'LTC': 'Litecoin', 'BCH': 'Bitcoin Cash', 'ICP': 'Internet Computer',
+      'PEPE': 'Pepe', 'FET': 'Fetch.ai', 'APT': 'Aptos', 'RNDR': 'Render', 'ATOM': 'Cosmos',
+      'UNI': 'Uniswap', 'XLM': 'Stellar', 'ARB': 'Arbitrum', 'OP': 'Optimism', 'INJ': 'Injective',
+      'FIL': 'Filecoin', 'TIA': 'Celestia', 'SUI': 'Sui', 'WLD': 'Worldcoin', 'SEI': 'Sei'
+    };
+    const searchableCoinsList = Object.keys(globalSearchNameMap).map(k => ({ sym: k, name: globalSearchNameMap[k] }));
+
+    document.querySelectorAll('input[placeholder="Sembol ara..."]').forEach(input => {
+        const parent = input.parentElement;
+        parent.style.position = 'relative';
+        
+        const dropdown = document.createElement('div');
+        dropdown.className = 'absolute top-full left-0 mt-2 w-full bg-[#131313] border border-outline-variant/30 rounded-lg shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[999] hidden flex-col max-h-60 overflow-y-auto scroll-hide';
+        parent.appendChild(dropdown);
+        
+        input.addEventListener('input', function(e) {
+            const val = this.value.trim().toLowerCase();
+            if (val.length === 0) {
+                dropdown.classList.add('hidden');
+                dropdown.classList.remove('flex');
+                return;
+            }
+            const matches = searchableCoinsList.filter(c => c.sym.toLowerCase().includes(val) || c.name.toLowerCase().includes(val)).slice(0, 6);
+            if (matches.length === 0) {
+                dropdown.innerHTML = '<div class="px-4 py-3 text-xs text-on-surface-variant text-center">Sonuç bulunamadı</div>';
+            } else {
+                dropdown.innerHTML = matches.map(c => `
+                    <div class="px-4 py-2 border-b border-outline-variant/10 hover:bg-white/5 cursor-pointer transition-colors flex justify-between items-center last:border-0"
+                         onclick="window.location.href='coin.html?coin=${c.sym}&name=${encodeURIComponent(c.name.toUpperCase())}'">
+                        <span class="text-white text-sm font-semibold">${c.sym}</span>
+                        <span class="text-on-surface-variant text-[10px]">${c.name}</span>
+                    </div>
+                `).join('');
+            }
+            dropdown.classList.remove('hidden');
+            dropdown.classList.add('flex');
+        });
+
+        input.addEventListener('keypress', async function(e) {
+            if(e.key === 'Enter' && this.value.trim() !== '') {
+                const val = this.value.trim().toUpperCase();
+                
+                const match = searchableCoinsList.find(c => c.sym.toUpperCase() === val || c.name.toUpperCase() === val);
+                if (match) {
+                    window.location.href = `coin.html?coin=${match.sym}&name=${encodeURIComponent(match.name.toUpperCase())}`;
+                    return;
+                }
+                
+                try {
+                    const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${val}USDT`);
+                    if (res.ok) {
+                        window.location.href = `coin.html?coin=${val}&name=${val}`;
+                    } else {
+                        input.value = '';
+                        const oldPlaceholder = input.placeholder;
+                        input.placeholder = 'Bulunamadı!';
+                        setTimeout(() => input.placeholder = oldPlaceholder, 2000);
+                    }
+                } catch (err) {
+                    console.error("API Error", err);
+                }
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!parent.contains(e.target)) {
+                dropdown.classList.add('hidden');
+                dropdown.classList.remove('flex');
+            }
+        });
+    });
+</script>
+</body>
+</html>

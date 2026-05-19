@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BUFF | Kayıt Ol</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#767575",
+                        "on-tertiary-container": "#004553",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "primary": "#93c5fd",
+                        "surface-container": "#1a1a1a",
+                        "secondary-fixed": "#e5e2e1",
+                        "error-container": "#9f0519",
+                        "on-error-container": "#ffa8a3",
+                        "inverse-surface": "#fcf9f8",
+                        "primary-fixed": "#2563eb",
+                        "tertiary-dim": "#00c7ec",
+                        "on-secondary-container": "#d2d0cf",
+                        "on-surface-variant": "#adaaaa",
+                        "on-error": "#490006",
+                        "on-secondary": "#525151",
+                        "on-tertiary-fixed-variant": "#004e5f",
+                        "tertiary-fixed": "#00d5fe",
+                        "surface-container-high": "#20201f",
+                        "primary-fixed-dim": "#60a5fa",
+                        "surface-container-highest": "#262626",
+                        "on-background": "#ffffff",
+                        "surface-container-lowest": "#000000",
+                        "inverse-on-surface": "#565555",
+                        "primary-container": "#3b82f6",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#002f39",
+                        "secondary": "#e5e2e1",
+                        "secondary-dim": "#d6d4d3",
+                        "surface-bright": "#2c2c2c",
+                        "on-tertiary-fixed": "#002f39",
+                        "tertiary-container": "#00d5fe",
+                        "surface": "#0e0e0e",
+                        "outline-variant": "#484847",
+                        "background": "#0e0e0e",
+                        "surface-dim": "#0e0e0e",
+                        "surface-variant": "#262626",
+                        "error-dim": "#d7383b",
+                        "on-tertiary": "#004e5f",
+                        "on-primary-container": "#ffffff",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "secondary-container": "#474746",
+                        "on-primary-fixed": "#ffffff",
+                        "surface-container-low": "#131313",
+                        "on-secondary-fixed": "#403f3f",
+                        "on-surface": "#ffffff",
+                        "tertiary": "#74e0ff",
+                        "surface-tint": "#00D1FF",
+                        "inverse-primary": "#006c51",
+                        "tertiary-fixed-dim": "#00c7ec",
+                        "error": "#ff716c",
+                        "primary-dim": "#60a5fa"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .kinetic-void-gradient {
+            background: linear-gradient(135deg, #0e0e0e 0%, #1a1a1a 100%);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 20px rgba(0, 209, 255, 0.3);
+        }
+        .glass-panel {
+            background: rgba(38, 38, 38, 0.6);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- Split Screen Container -->
+<main class="min-h-screen flex flex-col md:flex-row overflow-hidden relative kinetic-void-gradient">
+<!-- Left Side: Visual & Hero -->
+<section class="w-full md:w-1/2 relative flex flex-col p-8 md:p-12 overflow-hidden border-r border-outline-variant/10">
+<!-- Header/Logo Area -->
+<div class="z-20 mb-auto">
+<div class="flex items-center gap-4">
+<span class="font-headline text-3xl font-bold tracking-tighter text-primary">BUFF</span>
+<span class="bg-primary/10 text-primary text-[10px] font-bold px-3 py-1 rounded-full border border-primary/20 tracking-widest uppercase">KURUMSAL ERİŞİM</span>
+</div>
+</div>
+<!-- Content Area -->
+<div class="z-20 mt-12 md:mt-0 max-w-xl">
+<h1 class="font-headline text-5xl md:text-7xl font-bold leading-tight mb-6">
+<span class="text-on-surface">Veriye Hükmet</span><br/>
+<span class="text-primary">Geleceği Yönet</span>
+</h1>
+<p class="text-on-surface-variant text-lg md:text-xl leading-relaxed max-w-md font-light">
+                    Sıfır gecikmeli gerçek zamanlı analitik araçlarımızla piyasanın bir adım önünde olun. En karmaşık veri setlerini saniyeler içinde kâr getiren stratejilere dönüştürün.
+                </p>
+</div>
+<!-- Image/Visual Layer -->
+<div class="absolute inset-0 z-10 pointer-events-none opacity-40">
+<img alt="Bitcoin Analysis" class="w-full h-full object-cover mix-blend-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-mZnL2RBEUbTyrHpEbSeNyMEXQlIfvAHkcZ6j1zHYa0HaoXQIdORvQKxLFyKDRQclWge_5ThHsFByRiZkb8ydCgfexhYnaMT-qPcSrO-Vn-MyNXEoAje6YUiN6y5i0gLEwrULI9D3rOWwphgdEJF3y54C9LHBVUwrcoAWve0gORKr5-PKlbie4t_q4a3zt3IHWjfRGhjmGG0d4OQpk29CA_eCYufHIQI8B7UXjMuesoTvg-Peoves_PB3Vmy8wFK4eV9SCQIg-no"/>
+</div>
+<!-- Info Cards Grid -->
+<div class="z-20 mt-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="bg-surface-container/60 backdrop-blur-xl p-5 rounded-xl border border-outline-variant/15">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary" data-icon="trending_up">trending_up</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">Analizler ile...</span>
+</div>
+<p class="text-sm text-on-surface font-medium leading-snug">Derinlemesine piyasa taraması ve yapay zeka destekli tahminler.</p>
+</div>
+<div class="bg-surface-container/60 backdrop-blur-xl p-5 rounded-xl border border-outline-variant/15">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="bolt">bolt</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">SIFIR GECİKME</span>
+</div>
+<p class="text-sm text-on-surface font-medium leading-snug">Dünya çapındaki sunucularımızla en hızlı veri işleme kapasitesi.</p>
+</div>
+</div>
+<!-- Tonal Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent pointer-events-none opacity-60 z-15"></div>
+</section>
+<!-- Right Side: Registration Panel -->
+<section class="w-full md:w-1/2 flex items-center justify-center p-8 md:p-16 bg-surface relative">
+<!-- Subtle Ambient Glow -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
+<div class="w-full max-w-md space-y-8 z-10">
+<header class="text-left">
+<h2 class="font-headline text-4xl font-bold text-on-surface mb-2">Kayıt Ol</h2>
+<p class="text-on-surface-variant font-body">Hesabınızı oluşturmak için bilgilerinizi girin.</p>
+</header>
+<form class="space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2 group">
+<label class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">AD</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none text-on-surface focus:ring-0 p-4 rounded-lg placeholder:text-outline/40 text-sm transition-all" placeholder="Adınız" type="text"/>
+<div class="absolute left-0 bottom-0 top-0 w-[2px] bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity shadow-[0_0_12px_rgba(0,209,255,0.8)]"></div>
+</div>
+</div>
+<div class="space-y-2 group">
+<label class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">SOYAD</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none text-on-surface focus:ring-0 p-4 rounded-lg placeholder:text-outline/40 text-sm transition-all" placeholder="Soyadınız" type="text"/>
+<div class="absolute left-0 bottom-0 top-0 w-[2px] bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity shadow-[0_0_12px_rgba(0,209,255,0.8)]"></div>
+</div>
+</div>
+</div>
+<div class="space-y-2 group">
+<label class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">E-POSTA ADRESİ</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none text-on-surface focus:ring-0 p-4 rounded-lg placeholder:text-outline/40 text-sm transition-all" placeholder="name@kinetic.io" type="email"/>
+<div class="absolute left-0 bottom-0 top-0 w-[2px] bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity shadow-[0_0_12px_rgba(0,209,255,0.8)]"></div>
+</div>
+</div>
+<div class="space-y-2 group">
+<label class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">ŞİFRE</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none text-on-surface focus:ring-0 p-4 rounded-lg placeholder:text-outline/40 text-sm transition-all" placeholder="••••••••" type="password"/>
+<div class="absolute left-0 bottom-0 top-0 w-[2px] bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity shadow-[0_0_12px_rgba(0,209,255,0.8)]"></div>
+</div>
+</div>
+<div class="space-y-2 group">
+<label class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">ŞİFREYİ ONAYLA</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none text-on-surface focus:ring-0 p-4 rounded-lg placeholder:text-outline/40 text-sm transition-all" placeholder="••••••••" type="password"/>
+<div class="absolute left-0 bottom-0 top-0 w-[2px] bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity shadow-[0_0_12px_rgba(0,209,255,0.8)]"></div>
+</div>
+</div>
+<button class="w-full bg-gradient-to-br from-primary to-primary-fixed text-white font-headline font-bold py-4 rounded-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 neon-glow-primary tracking-widest uppercase text-sm" type="button" onclick="window.location.href='dashboard.html'">
+                        KAYIT OL
+                        <span class="material-symbols-outlined text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<div class="text-center">
+<p class="text-on-surface-variant text-xs">
+                        Zaten bir hesabınız var mı? 
+                        <a class="text-primary hover:underline underline-offset-4 ml-1 transition-colors font-medium" href="index.html">Giriş yapın</a>
+</p>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="absolute bottom-0 left-0 w-full z-30 px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-transparent border-none">
+<div class="text-[10px] font-label font-bold tracking-widest text-on-surface-variant uppercase">
+                © 2024 BUFF. TÜM HAKLARI SAKLIDIR.
+            </div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-[10px] font-label font-bold tracking-widest text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">GİZLİLİK POLİTİKASI</a>
+<a class="text-[10px] font-label font-bold tracking-widest text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">HİZMET ŞARTLARI</a>
+<a class="text-[10px] font-label font-bold tracking-widest text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">RİSK BİLDİRİMİ</a>
+</div>
+</footer>
+</main>
+</body></html>
