@@ -5,3 +5,4 @@ dist/
 .env
 server/.env
 server/node_modules/
+server/buff.db

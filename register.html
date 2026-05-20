@@ -252,13 +252,14 @@ async function handleRegister() {
         const res = await fetch(`${BUFF_API_BASE}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ name, email, password }),
         });
         const data = await res.json();
         if (!res.ok) {
             throw new Error(data.error || 'Kayıt başarısız.');
         }
-        sessionStorage.setItem('buff_token', data.token);
+        // Token artık HttpOnly Cookie ile gelir — manuel kayıt gerekmez
         sessionStorage.setItem('buff_user_name', data.name);
         window.location.href = 'dashboard.html';
     } catch (err) {

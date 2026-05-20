@@ -215,6 +215,7 @@ async function handleLogin() {
         const res = await fetch(`${BUFF_API_BASE}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ email, password }),
         });
         const data = await res.json();
@@ -222,7 +223,7 @@ async function handleLogin() {
             throw new Error(data.error || 'Giriş başarısız.');
         }
         // JWT token'ı sessionStorage'a kaydet (sekme kapanınca silinir)
-        sessionStorage.setItem('buff_token', data.token);
+        // Token artık HttpOnly Cookie ile gelir — manuel kayıt gerekmez
         sessionStorage.setItem('buff_user_name', data.name);
         window.location.href = 'dashboard.html';
     } catch (err) {

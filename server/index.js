@@ -1,128 +1,189 @@
 'use strict';
 
 require('dotenv').config();
-const express    = require('express');
-const cors       = require('cors');
-const bcrypt     = require('bcryptjs');
-const jwt        = require('jsonwebtoken');
+const express      = require('express');
+const cors         = require('cors');
+const bcrypt       = require('bcryptjs');
+const jwt          = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const rateLimit    = require('express-rate-limit');
+const Database     = require('better-sqlite3');
+const path         = require('path');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET     = process.env.JWT_SECRET;
 const GROQ_API_KEY   = process.env.GROQ_API_KEY;
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:5500';
+const IS_PROD        = process.env.NODE_ENV === 'production';
+
+// ─── SQLite Veritabanı ────────────────────────────────────────────────────────
+const DB_PATH = path.join(__dirname, 'buff.db');
+const db = new Database(DB_PATH);
+
+// Tablo oluştur (yoksa)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    name          TEXT    NOT NULL,
+    email         TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+    password_hash TEXT    NOT NULL,
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+
+// Hazır sorgular
+const stmtFindUser   = db.prepare('SELECT * FROM users WHERE email = ? COLLATE NOCASE');
+const stmtInsertUser = db.prepare(
+  'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)'
+);
+
+console.log(`✅ SQLite veritabanı bağlandı: ${DB_PATH}`);
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors({
     origin: ALLOWED_ORIGIN,
     methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true,   // Cookie'lerin karşı tarafa geçmesi için zorunlu
 }));
-app.use(express.json({ limit: '10kb' })); // DoS koruması için payload limiti
+app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
-// ─── In-Memory "DB" (Gerçek projede PostgreSQL/MongoDB kullanılmalı) ──────────
-// Kullanıcılar: { email, passwordHash, name }
-const users = new Map();
+// ─── Rate Limiters ────────────────────────────────────────────────────────────
 
-// ─── Yardımcı: JWT Doğrulama Middleware ──────────────────────────────────────
+// Login: IP başına 15 dakikada maks 10 deneme
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Çok fazla giriş denemesi. Lütfen 15 dakika sonra tekrar deneyin.' },
+});
+
+// Register: IP başına 1 saatte maks 5 kayıt
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Çok fazla kayıt isteği. Lütfen 1 saat sonra tekrar deneyin.' },
+});
+
+// Analiz: IP başına dakikada maks 5 istek
+const analyzeLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Çok fazla analiz isteği. Lütfen 1 dakika bekleyin.' },
+});
+
+// ─── Yardımcı: Cookie seçenekleri ────────────────────────────────────────────
+function cookieOptions() {
+    return {
+        httpOnly : true,          // JS tarafından okunamaz → XSS koruması
+        secure   : IS_PROD,       // Prod'da HTTPS zorunlu, dev'de false
+        sameSite : 'strict',      // CSRF koruması
+        maxAge   : 7 * 24 * 60 * 60 * 1000, // 7 gün (ms)
+        path     : '/',
+    };
+}
+
+// ─── Yardımcı: JWT Doğrulama (Cookie üzerinden) ───────────────────────────────
 function requireAuth(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Yetkilendirme başlığı eksik.' });
+    const token = req.cookies?.buff_token;
+    if (!token) {
+        return res.status(401).json({ error: 'Oturum bulunamadı. Lütfen giriş yapın.' });
     }
-    const token = authHeader.split(' ')[1];
     try {
-        const payload = jwt.verify(token, JWT_SECRET);
-        req.user = payload;
+        req.user = jwt.verify(token, JWT_SECRET);
         next();
-    } catch (err) {
-        return res.status(401).json({ error: 'Geçersiz veya süresi dolmuş token.' });
+    } catch {
+        res.clearCookie('buff_token');
+        return res.status(401).json({ error: 'Oturum süresi dolmuş. Lütfen tekrar giriş yapın.' });
     }
 }
 
-// ─── AUTH: Kayıt (Register) ───────────────────────────────────────────────────
-app.post('/api/auth/register', async (req, res) => {
+// ─── AUTH: Kayıt ─────────────────────────────────────────────────────────────
+app.post('/api/auth/register', registerLimiter, async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // Basit doğrulama
-        if (!name || !email || !password) {
+        if (!name || !email || !password)
             return res.status(400).json({ error: 'Ad, e-posta ve şifre zorunludur.' });
-        }
-        if (typeof email !== 'string' || !email.includes('@')) {
+        if (typeof email !== 'string' || !email.includes('@'))
             return res.status(400).json({ error: 'Geçerli bir e-posta adresi girin.' });
-        }
-        if (typeof password !== 'string' || password.length < 8) {
+        if (typeof password !== 'string' || password.length < 8)
             return res.status(400).json({ error: 'Şifre en az 8 karakter olmalıdır.' });
-        }
-        if (users.has(email.toLowerCase())) {
+
+        // Mevcut kullanıcı kontrolü (senkron SQLite)
+        const existing = stmtFindUser.get(email);
+        if (existing)
             return res.status(409).json({ error: 'Bu e-posta adresi zaten kayıtlı.' });
-        }
 
-        // Şifreyi bcrypt ile hashle (salt rounds: 12)
         const passwordHash = await bcrypt.hash(password, 12);
-        users.set(email.toLowerCase(), { name, email: email.toLowerCase(), passwordHash });
+        stmtInsertUser.run(name.trim(), email.toLowerCase(), passwordHash);
 
-        // JWT oluştur
-        const token = jwt.sign(
-            { email: email.toLowerCase(), name },
-            JWT_SECRET,
-            { expiresIn: '7d' }
-        );
+        // HttpOnly Cookie olarak JWT set et
+        const token = jwt.sign({ email: email.toLowerCase(), name }, JWT_SECRET, { expiresIn: '7d' });
+        res.cookie('buff_token', token, cookieOptions());
 
-        res.status(201).json({ message: 'Kayıt başarılı.', token, name });
+        res.status(201).json({ message: 'Kayıt başarılı.', name });
     } catch (err) {
         console.error('[Register Error]', err.message);
         res.status(500).json({ error: 'Sunucu hatası.' });
     }
 });
 
-// ─── AUTH: Giriş (Login) ──────────────────────────────────────────────────────
-app.post('/api/auth/login', async (req, res) => {
+// ─── AUTH: Giriş ─────────────────────────────────────────────────────────────
+app.post('/api/auth/login', loginLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        if (!email || !password) {
+        if (!email || !password)
             return res.status(400).json({ error: 'E-posta ve şifre zorunludur.' });
-        }
 
-        const user = users.get(email.toLowerCase());
-        if (!user) {
-            // Timing attack'e karşı sabit süre bekle
-            await bcrypt.compare(password, '$2a$12$invalidhashplaceholder00000000000000000000');
+        const user = stmtFindUser.get(email);
+
+        // Kullanıcı bulunamasa bile sabit süreli hash ile timing attack engelle
+        const hashToCheck = user?.password_hash || '$2a$12$invalidhashplaceholder00000000000000000000';
+        const isMatch = await bcrypt.compare(password, hashToCheck);
+
+        if (!user || !isMatch)
             return res.status(401).json({ error: 'E-posta veya şifre hatalı.' });
-        }
 
-        const isMatch = await bcrypt.compare(password, user.passwordHash);
-        if (!isMatch) {
-            return res.status(401).json({ error: 'E-posta veya şifre hatalı.' });
-        }
+        const token = jwt.sign({ email: user.email, name: user.name }, JWT_SECRET, { expiresIn: '7d' });
+        res.cookie('buff_token', token, cookieOptions());
 
-        const token = jwt.sign(
-            { email: user.email, name: user.name },
-            JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-
-        res.json({ message: 'Giriş başarılı.', token, name: user.name });
+        res.json({ message: 'Giriş başarılı.', name: user.name });
     } catch (err) {
         console.error('[Login Error]', err.message);
         res.status(500).json({ error: 'Sunucu hatası.' });
     }
 });
 
-// ─── GROQ API PROXY (Korumalı endpoint) ──────────────────────────────────────
-app.post('/api/analyze', requireAuth, async (req, res) => {
+// ─── AUTH: Çıkış ─────────────────────────────────────────────────────────────
+app.post('/api/auth/logout', (req, res) => {
+    res.clearCookie('buff_token', { path: '/' });
+    res.json({ message: 'Çıkış yapıldı.' });
+});
+
+// ─── AUTH: Oturum durumu ─────────────────────────────────────────────────────
+app.get('/api/auth/me', requireAuth, (req, res) => {
+    res.json({ email: req.user.email, name: req.user.name });
+});
+
+// ─── GROQ API PROXY ──────────────────────────────────────────────────────────
+app.post('/api/analyze', requireAuth, analyzeLimiter, async (req, res) => {
     try {
         const { prompt } = req.body;
 
-        if (!prompt || typeof prompt !== 'string' || prompt.length > 5000) {
+        if (!prompt || typeof prompt !== 'string' || prompt.length > 5000)
             return res.status(400).json({ error: 'Geçersiz analiz isteği.' });
-        }
 
-        if (!GROQ_API_KEY || GROQ_API_KEY.startsWith('gsk_BURAYA')) {
-            return res.status(503).json({ error: 'Sunucuda API anahtarı yapılandırılmamış. Lütfen yönetici ile iletişime geçin.' });
-        }
+        if (!GROQ_API_KEY || GROQ_API_KEY.startsWith('gsk_BURAYA'))
+            return res.status(503).json({ error: 'Sunucuda API anahtarı yapılandırılmamış.' });
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -144,11 +205,9 @@ app.post('/api/analyze', requireAuth, async (req, res) => {
             return res.status(502).json({ error: `Groq API hatası: ${groqResponse.status}` });
         }
 
-        const data = await groqResponse.json();
+        const data    = await groqResponse.json();
         const content = data?.choices?.[0]?.message?.content;
-        if (!content) {
-            return res.status(502).json({ error: 'Groq API geçersiz yanıt döndürdü.' });
-        }
+        if (!content) return res.status(502).json({ error: 'Groq API geçersiz yanıt döndürdü.' });
 
         res.json({ result: content });
     } catch (err) {
@@ -162,10 +221,8 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// ─── 404 handler ─────────────────────────────────────────────────────────────
-app.use((req, res) => {
-    res.status(404).json({ error: 'Endpoint bulunamadı.' });
-});
+// ─── 404 ─────────────────────────────────────────────────────────────────────
+app.use((req, res) => res.status(404).json({ error: 'Endpoint bulunamadı.' }));
 
 // ─── Global hata yakalayıcı ───────────────────────────────────────────────────
 app.use((err, req, res, _next) => {
@@ -174,8 +231,6 @@ app.use((err, req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ BUFF Backend sunucusu http://localhost:${PORT} adresinde çalışıyor`);
-    if (!GROQ_API_KEY || GROQ_API_KEY.startsWith('gsk_BURAYA')) {
-        console.warn('⚠️  UYARI: .env dosyasına gerçek GROQ_API_KEY değerini girmeyi unutmayın!');
-    }
+    console.log(`✅ BUFF Backend → http://localhost:${PORT}`);
+    console.log(`📦 Veritabanı: ${DB_PATH}`);
 });

@@ -5,8 +5,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>BUFF | Derin Analiz</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js" integrity="sha384-NNQgBjjuhtXzPmmy4gurS5X7P4uTt1DThyevz4Ua0IVK5+kazYQI1W27JHjbbxQz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js" integrity="sha384-+VfUPEb0PdtChMwmBcBmykRMDd+v6D/oFmB3rZM/puCMDYcIvF968OimRh4KQY9a" crossorigin="anonymous"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
@@ -442,8 +442,7 @@
 // ─── Backend API Adresi ───────────────────────────────────────────────────────
 const BUFF_API_BASE = 'http://localhost:3001/api';
 
-// JWT token yardımcıları
-function getToken() { return sessionStorage.getItem('buff_token') || localStorage.getItem('buff_token'); }
+// Token artık HttpOnly Cookie'de — JS erişemez, tarayıcı otomatik gönderir
 
 const allCoins = [
     { sym:'BTC',  name:'Bitcoin',     price:'$64,281.00', chg:'+2.45%' },
@@ -543,15 +542,11 @@ function selectCoin(sym, name, price, chg) {
 
 // ─── Backend Proxy üzerinden Groq analizi (API key frontend'de YOK) ──────────
 async function fetchGroqAnalysis(promptText) {
-    const token = getToken();
     try {
         const response = await fetch(`${BUFF_API_BASE}/analyze`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // JWT token varsa gönder, yoksa sunucu 401 döner
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-            },
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',   // HttpOnly Cookie otomatik gönderilir
             body: JSON.stringify({ prompt: promptText })
         });
 
