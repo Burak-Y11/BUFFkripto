@@ -1,0 +1,22 @@
+// This is your Prisma schema file (Prisma v7+ compatible)
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Prisma v7'de bağlantı URL'i prisma.config.ts üzerinden geçiyor.
+// PostgreSQL'e geçmek için prisma.config.ts dosyasında provider'ı değiştirin.
+// ──────────────────────────────────────────────────────────────────────────────
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}

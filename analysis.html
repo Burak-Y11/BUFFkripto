@@ -540,15 +540,22 @@ function selectCoin(sym, name, price, chg) {
     document.getElementById('cs-footer').classList.remove('hidden');
 }
 
-// ─── Backend Proxy üzerinden Groq analizi (API key frontend'de YOK) ──────────
+// ─── Backend Proxy üzerinden Groq analizi (AbortController ile 30s timeout) ──
 async function fetchGroqAnalysis(promptText) {
+    // 5. AbortController: 30 saniyede yanıt gelmezse isteği iptal et
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(() => controller.abort(), 30_000);
+
     try {
         const response = await fetch(`${BUFF_API_BASE}/analyze`, {
-            method: 'POST',
+            method : 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',   // HttpOnly Cookie otomatik gönderilir
-            body: JSON.stringify({ prompt: promptText })
+            body   : JSON.stringify({ prompt: promptText }),
+            signal : controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (response.status === 401) {
             return '**Hata:** Analiz için giriş yapmanız gerekmektedir. Lütfen [Giriş Yap](index.html) sayfasına gidin.';
@@ -561,6 +568,10 @@ async function fetchGroqAnalysis(promptText) {
         const data = await response.json();
         return data.result;
     } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            return '**Zaman Aşımı:** Analiz isteği 30 saniye içinde yanıt vermedi. Lütfen tekrar deneyin.';
+        }
         console.error('[Analyze Error]', error.message);
         return `**Hata:** Analiz servisi şu anda kullanılamıyor.\n\nDetay: \`${error.message}\`\n\n> Sunucunun çalıştığından emin olun: \`cd server && npm start\``;
     }
