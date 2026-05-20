@@ -1,9 +1,9 @@
 'use strict';
 
-// ─── 1. KRİTİK ORTAM DEĞİŞKENLERİ KONTROLÜ (Sunucu başlamadan) ──────────────
+// ─── 1. KRİTİK ORTAM DEĞİŞKENLERİ KONTROLÜ ───────────────────────────────────
 require('dotenv').config();
 
-const REQUIRED_ENV = ['JWT_SECRET', 'GROQ_API_KEY'];
+const REQUIRED_ENV = ['JWT_SECRET', 'GROQ_API_KEY', 'DATABASE_URL'];
 const missing = REQUIRED_ENV.filter(k => !process.env[k] || process.env[k].startsWith('BURAYA'));
 if (missing.length > 0) {
     console.error('❌ KRİTİK GÜVENLİK HATASI: Eksik ortam değişkenleri:', missing.join(', '));
@@ -18,74 +18,76 @@ const jwt          = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const rateLimit    = require('express-rate-limit');
 const NodeCache    = require('node-cache');
-const path         = require('path');
 
-// ─── 2. PRİSMA ORM (SQLite → PostgreSQL geçişi tek satır değişiklik) ─────────
-const { PrismaClient }  = require('@prisma/client');
-const { PrismaLibSql }  = require('@prisma/adapter-libsql');
-const { createClient }  = require('@libsql/client');
+// ─── 2. PRİSMA (PostgreSQL — adaptör gerekmez) ───────────────────────────────
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-// Prisma instance — başlatma start() içinde yapılır
-let prisma;
-
-// ─── 3. ÖNBELLEKLEME (Groq API kotasını koruma) ───────────────────────────────
-// TTL: 3600 saniye (1 saat). Aynı analiz isteği 1 saat boyunca önbellekten gelir.
+// ─── 3. ÖNBELLEKLEME (1 saat TTL) ────────────────────────────────────────────
 const analysisCache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
 
 // ─── Sabitler ─────────────────────────────────────────────────────────────────
-const app            = express();
-const PORT           = process.env.PORT        || 3001;
-const JWT_SECRET     = process.env.JWT_SECRET;
-const GROQ_API_KEY   = process.env.GROQ_API_KEY;
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:5500';
-const IS_PROD        = process.env.NODE_ENV === 'production';
+const app        = express();
+const PORT       = process.env.PORT        || 3001;
+const JWT_SECRET = process.env.JWT_SECRET;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const IS_PROD    = process.env.NODE_ENV === 'production';
 
-// ─── Şifre Politikası Regex ───────────────────────────────────────────────────
-// En az 8 karakter, 1 büyük harf, 1 küçük harf, 1 rakam
+// ─── Şifre Politikası (min 8 kar, büyük+küçük harf, rakam) ───────────────────
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
+// ─── CORS (virgülle ayrılmış birden fazla kaynak desteklenir) ─────────────────
+const rawOrigins = (process.env.ALLOWED_ORIGIN || 'http://localhost:5500').split(',').map(o => o.trim());
+
 app.use(cors({
-    origin      : ALLOWED_ORIGIN,
-    methods     : ['GET', 'POST'],
+    origin(origin, callback) {
+        // origin boş = curl/Postman/same-origin → izin ver
+        if (!origin) return callback(null, true);
+        if (rawOrigins.includes('*') || rawOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        callback(new Error(`CORS: izin verilmeyen kaynak → ${origin}`));
+    },
+    methods      : ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
-    credentials : true,
+    credentials  : true,
 }));
+
 app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
 
 // ─── Rate Limiters ────────────────────────────────────────────────────────────
 const loginLimiter = rateLimit({
-    windowMs : 15 * 60 * 1000,  // 15 dakika
-    max      : 10,               // IP başına 10 deneme
+    windowMs: 15 * 60 * 1000,
+    max     : 10,
     standardHeaders: true,
     legacyHeaders  : false,
-    message  : { error: 'Çok fazla giriş denemesi. 15 dakika sonra tekrar deneyin.' },
+    message : { error: 'Çok fazla giriş denemesi. 15 dakika sonra tekrar deneyin.' },
 });
 
 const registerLimiter = rateLimit({
-    windowMs : 60 * 60 * 1000,  // 1 saat
-    max      : 5,
+    windowMs: 60 * 60 * 1000,
+    max     : 5,
     standardHeaders: true,
     legacyHeaders  : false,
-    message  : { error: 'Çok fazla kayıt isteği. 1 saat sonra tekrar deneyin.' },
+    message : { error: 'Çok fazla kayıt isteği. 1 saat sonra tekrar deneyin.' },
 });
 
 const analyzeLimiter = rateLimit({
-    windowMs : 60 * 1000,  // 1 dakika
-    max      : 5,
+    windowMs: 60 * 1000,
+    max     : 5,
     standardHeaders: true,
     legacyHeaders  : false,
-    message  : { error: 'Çok fazla analiz isteği. 1 dakika bekleyin.' },
+    message : { error: 'Çok fazla analiz isteği. 1 dakika bekleyin.' },
 });
 
 // ─── Cookie seçenekleri ───────────────────────────────────────────────────────
 const cookieOptions = () => ({
-    httpOnly : true,
-    secure   : IS_PROD,
-    sameSite : 'strict',
-    maxAge   : 7 * 24 * 60 * 60 * 1000,
-    path     : '/',
+    httpOnly: true,
+    secure  : IS_PROD,        // prod'da HTTPS zorunlu
+    sameSite: IS_PROD ? 'none' : 'strict',  // cross-site cookie için none (HTTPS gerekir)
+    maxAge  : 7 * 24 * 60 * 60 * 1000,
+    path    : '/',
 });
 
 // ─── JWT Auth Middleware ──────────────────────────────────────────────────────
@@ -108,20 +110,16 @@ app.post('/api/auth/register', registerLimiter, async (req, res) => {
 
         if (!name || !email || !password)
             return res.status(400).json({ error: 'Ad, e-posta ve şifre zorunludur.' });
-
         if (typeof email !== 'string' || !email.includes('@'))
             return res.status(400).json({ error: 'Geçerli bir e-posta adresi girin.' });
-
-        // 4. Güçlü şifre politikası
-        if (!PASSWORD_REGEX.test(password)) {
+        if (!PASSWORD_REGEX.test(password))
             return res.status(400).json({
                 error: 'Şifre en az 8 karakter olmalı ve en az 1 büyük harf, 1 küçük harf, 1 rakam içermelidir.',
             });
-        }
 
-        // Prisma ile kullanıcı kontrolü
         const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-        if (existing) return res.status(409).json({ error: 'Bu e-posta adresi zaten kayıtlı.' });
+        if (existing)
+            return res.status(409).json({ error: 'Bu e-posta adresi zaten kayıtlı.' });
 
         const passwordHash = await bcrypt.hash(password, 12);
         await prisma.user.create({
@@ -146,7 +144,6 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
 
         const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
 
-        // Timing attack koruması — kullanıcı bulunamasa bile bcrypt çalıştır
         const hashToCheck = user?.passwordHash || '$2a$12$invalidhashplaceholder00000000000000000000';
         const isMatch     = await bcrypt.compare(password, hashToCheck);
 
@@ -180,18 +177,17 @@ app.post('/api/analyze', requireAuth, analyzeLimiter, async (req, res) => {
         if (!prompt || typeof prompt !== 'string' || prompt.length > 5000)
             return res.status(400).json({ error: 'Geçersiz analiz isteği.' });
 
-        // 3. Önbellek kontrolü — aynı prompt için Groq'a gitme
+        // Önbellek kontrolü
         const cacheKey = `analysis:${Buffer.from(prompt).toString('base64').slice(0, 64)}`;
         const cached   = analysisCache.get(cacheKey);
         if (cached) {
-            console.log(`📦 Önbellekten servis edildi (key: ${cacheKey.slice(0, 20)}...)`);
+            console.log(`📦 Önbellekten servis edildi`);
             return res.json({ result: cached, cached: true });
         }
 
-        // Groq API isteği (önbellekte yoksa)
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method  : 'POST',
-            headers : {
+            method : 'POST',
+            headers: {
                 'Authorization': `Bearer ${GROQ_API_KEY}`,
                 'Content-Type' : 'application/json',
             },
@@ -213,9 +209,8 @@ app.post('/api/analyze', requireAuth, analyzeLimiter, async (req, res) => {
         const content = data?.choices?.[0]?.message?.content;
         if (!content) return res.status(502).json({ error: 'Groq API geçersiz yanıt döndürdü.' });
 
-        // Sonucu 1 saatliğine önbelleğe al
         analysisCache.set(cacheKey, content);
-        console.log(`✨ Groq API yanıtı önbelleğe alındı (${analysisCache.getStats().keys} toplam key)`);
+        console.log(`✨ Groq yanıtı önbelleğe alındı (${analysisCache.getStats().keys} key)`);
 
         res.json({ result: content, cached: false });
     } catch (err) {
@@ -224,16 +219,12 @@ app.post('/api/analyze', requireAuth, analyzeLimiter, async (req, res) => {
     }
 });
 
-// ─── Önbellek istatistikleri (sadece geliştirme) ──────────────────────────────
-app.get('/api/cache/stats', requireAuth, (req, res) => {
-    res.json(analysisCache.getStats());
-});
-
 // ─── Sağlık Kontrolü ─────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
     res.json({
         status   : 'ok',
         timestamp: new Date().toISOString(),
+        env      : process.env.NODE_ENV || 'development',
         cache    : analysisCache.getStats(),
     });
 });
@@ -249,18 +240,13 @@ app.use((err, req, res, _next) => {
 
 // ─── Sunucu Başlatma ─────────────────────────────────────────────────────────
 async function start() {
-    // Prisma'yı burada başlat — process.cwd() runtime'da kesinlikle doğrudur
-    const dbPath  = path.resolve(process.cwd(), 'buff.db');
-    const adapter = new PrismaLibSql({ url: `file:${dbPath}` });
-    prisma        = new PrismaClient({ adapter });
-
     await prisma.$connect();
-    console.log(`✅ Prisma → SQLite bağlantısı kuruldu: ${dbPath}`);
+    console.log('✅ PostgreSQL bağlantısı kuruldu (Prisma)');
 
     app.listen(PORT, () => {
         console.log(`🚀 BUFF Backend → http://localhost:${PORT}`);
-        console.log(`📦 Önbellek: 1 saat TTL (Groq API kota koruması aktif)`);
-        console.log(`🔐 JWT HttpOnly Cookie aktif | Rate Limiting aktif`);
+        console.log(`📦 Önbellek: 1 saat TTL aktif`);
+        console.log(`🔐 HttpOnly Cookie | Rate Limiting | CORS aktif`);
     });
 }
 

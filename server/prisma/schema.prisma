@@ -1,16 +1,16 @@
-// This is your Prisma schema file (Prisma v7+ compatible)
-// https://pris.ly/d/prisma-schema
+// This is your Prisma schema file
+// Docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Prisma v7'de bağlantı URL'i prisma.config.ts üzerinden geçiyor.
-// PostgreSQL'e geçmek için prisma.config.ts dosyasında provider'ı değiştirin.
-// ──────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// PostgreSQL (Railway, Supabase, PlanetScale vs.)
+// Railway'de DATABASE_URL otomatik olarak enjekte edilir.
+// ─────────────────────────────────────────────────────────────────────────────
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model User {

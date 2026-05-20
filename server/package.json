@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "npx prisma migrate deploy && node index.js",
     "dev": "node --watch index.js",
+    "migrate": "npx prisma migrate dev --name init",
+    "db:push": "npx prisma db push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

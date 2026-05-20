@@ -216,7 +216,14 @@
 </footer>
 </main>
 <script>
-const BUFF_API_BASE = 'http://localhost:3001/api';
+// ─── API Adresi (geliştirme=localhost, canlı=Railway otomatik) ─────────────────
+const BUFF_API_BASE = (() => {
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '';
+    // Railway URL'ini buraya yaz (deploy sonrası):
+    const RAILWAY_URL = 'https://RAILWAY_BACKEND_URL_BURAYA.up.railway.app';
+    return isLocal ? 'http://localhost:3001/api' : `${RAILWAY_URL}/api`;
+})();
 
 async function handleRegister() {
     const name     = (document.getElementById('reg-name').value.trim() + ' ' + document.getElementById('reg-surname').value.trim()).trim();

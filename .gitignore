@@ -6,3 +6,4 @@ dist/
 server/.env
 server/node_modules/
 server/buff.db
+server/node_modules/.prisma/
